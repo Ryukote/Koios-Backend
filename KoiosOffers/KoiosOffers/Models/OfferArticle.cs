@@ -1,7 +1,10 @@
-﻿namespace KoiosOffers.Models
+﻿using KoiosOffers.Contracts;
+
+namespace KoiosOffers.Models
 {
-    public class OfferArticle
+    public class OfferArticle : IId<int>
     {
+        public int Id { get; set; }
         public int ArticleId { get; set; }
         public Article Article { get; set; }
         public int OfferId { get; set; }

@@ -1,9 +1,10 @@
-﻿using System;
+﻿using KoiosOffers.Contracts;
+using System;
 using System.Collections.Generic;
 
 namespace KoiosOffers.Models
 {
-    public class Offer
+    public class Offer : IId<int>
     {
         public int Id { get; set; }
         public int Number { get; set; }
