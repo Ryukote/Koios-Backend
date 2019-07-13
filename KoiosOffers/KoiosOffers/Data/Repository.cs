@@ -14,6 +14,7 @@ namespace KoiosOffers.Data
         where TDbContext : DbContext
     {
         private readonly TDbContext _dbContext;
+        private DbSet<TModel> _dbSet;
 
         public Repository(TDbContext dbContext)
         {
@@ -23,24 +24,39 @@ namespace KoiosOffers.Data
         public async Task<int> AddAsync(TModel model)
         {
             _dbContext.Set<TModel>().Add(model);
-            return await _dbContext.SaveChangesAsync();
+            int result = await _dbContext.SaveChangesAsync();
+
+            _dbContext.Entry(model).State = EntityState.Detached;
+
+            return result;
         }
 
         public async Task<int> DeleteAsync(TId id)
         {
-            var entity = await GetByAsync(o => ((IId<TId>)o).Id.Equals(id));
+            IEnumerable<TModel> result = await GetAsync(o=>((IId<TId>)o).Id.Equals(id));
+            TModel entity = result.First();
             _dbContext.Set<TModel>().Remove(entity);
             return await _dbContext.SaveChangesAsync();
+
+            //TModel entityToDelete = await _dbSet.FindAsync(id);
+
+            //if (_dbContext.Entry(entityToDelete).State == EntityState.Detached)
+            //{
+            //    _dbSet.Attach(entityToDelete);
+            //}
+            //_dbSet.Remove(entityToDelete);
+            //return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<TModel>> GetAllAsync()
+        public async Task<IEnumerable<TModel>> GetAsync(Expression<Func<TModel, bool>> filter = null)
         {
-            return await _dbContext.Set<TModel>().ToListAsync();
-        }
+            IQueryable<TModel> query = _dbContext.Set<TModel>();
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
 
-        public async Task<TModel> GetByAsync(Expression<Func<TModel, bool>> expression)
-        {
-            return await _dbContext.Set<TModel>().FirstAsync(expression);
+            return await query.ToListAsync();
         }
 
         public async Task<int> UpdateAsync(TModel model)
