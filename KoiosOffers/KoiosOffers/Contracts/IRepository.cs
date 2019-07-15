@@ -2,16 +2,16 @@
 using System.Collections.Generic;
 using System.Linq.Expressions;
 using System.Threading.Tasks;
+using KoiosOffers.Models;
 
 namespace KoiosOffers.Contracts
 {
-    public interface IRepository<TModel, TId>
-        where TModel : class
+    public interface IRepository<TId>
         where TId : struct
     {
-        Task<IEnumerable<TModel>> GetAsync(Expression<Func<TModel, bool>> filter = null);
-        Task<int> AddAsync(TModel model);
+        Task<IEnumerable<IViewModel>> GetAsync(Expression<Func<IViewModel, bool>> filter = null, int skip = 0, int take = 0, string term = "");
+        Task<int> AddAsync(IViewModel model);
         Task<int> DeleteAsync(TId id);
-        Task<int> UpdateAsync(TModel model);
+        Task<int> UpdateAsync(IViewModel model);
     }
 }

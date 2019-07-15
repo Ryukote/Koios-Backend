@@ -1,6 +1,7 @@
 ﻿using KoiosOffers.Contracts;
 using KoiosOffers.Data;
 using KoiosOffers.Models;
+using KoiosOffers.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
@@ -11,18 +12,19 @@ namespace KoiosOffersTests
 {
     public class RepositoryTests
     {
-        private static IRepository<Article, int> GetInMemoryForArticle()
+        private static IArticleHandler<int> GetInMemoryForArticle()
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
             builder.UseInMemoryDatabase(databaseName: "KoiosArticle");
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
+            offerContext.Database.EnsureDeleted();
             offerContext.Database.EnsureCreated();
-            return new Repository<Article, int, OfferContext>(offerContext);
+            return new ArticleHandler<int>(offerContext);
         }
 
-        private static IRepository<Offer, int> GetInMemoryForOffer()
+        private static IRepository<int> GetInMemoryForOffer()
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
@@ -30,28 +32,30 @@ namespace KoiosOffersTests
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
             offerContext.Database.EnsureCreated();
-            return new Repository<Offer, int, OfferContext>(offerContext);
+            return new OfferHandler(offerContext);
         }
 
-        private static IRepository<OfferArticle, int> GetInMemoryForOfferArticle()
+        private static IRepository<int> GetInMemoryForOfferArticle()
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
-            builder.UseInMemoryDatabase(databaseName: "KoiosOfferArticle");
+            builder.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
             offerContext.Database.EnsureCreated();
-            return new Repository<OfferArticle, int, OfferContext>(offerContext);
+            return new OfferArticleHandler(offerContext);
         }
 
         [Fact]
         public async Task WillCreateArticle()
         {
-            IRepository<Article, int> sut = GetInMemoryForArticle();
+            var _id = 1;
 
-            Article article = new Article()
+            var sut = GetInMemoryForArticle();
+
+            ArticleViewModel article = new ArticleViewModel()
             {
-                Id = 1,
+                Id = _id,
                 Name = "HDD1",
                 UnitPrice = 750
             };
@@ -64,33 +68,39 @@ namespace KoiosOffersTests
         [Fact]
         public async Task ArticleAlreadyExists()
         {
-            IRepository<Article, int> sut = GetInMemoryForArticle();
+            var sut = GetInMemoryForArticle();
 
-            Article article = new Article()
+            ArticleViewModel article = new ArticleViewModel()
             {
-                Id = 1,
+                Id = 10,
                 Name = "HDD1",
                 UnitPrice = 750
             };
 
-            await Assert.ThrowsAsync<ArgumentException>(() => sut.AddAsync(article));
+            await sut.AddAsync(article);
+
+            var result = await sut.AddAsync(article);
+
+            Assert.Equal(0, result);
         }
 
         [Fact]
         public async Task WillUpdateArticle()
         {
-            IRepository<Article, int> sut = GetInMemoryForArticle();
+            var sut = GetInMemoryForArticle();
 
-            Article article1 = new Article()
+            var id = 0;
+
+            ArticleViewModel article1 = new ArticleViewModel()
             {
-                Id = 10,
+                Id = id,
                 Name = "HDD1",
                 UnitPrice = 750
             };
 
-            Article article2 = new Article()
+            ArticleViewModel article2 = new ArticleViewModel()
             {
-                Id = 10,
+                Id = id,
                 Name = "HDD2",
                 UnitPrice = 755
             };
@@ -105,11 +115,11 @@ namespace KoiosOffersTests
         [Fact]
         public async Task UpdateArticleNonExistingId()
         {
-            IRepository<Article, int> sut = GetInMemoryForArticle();
+            var sut = GetInMemoryForArticle();
 
-            Article article = new Article()
+            ArticleViewModel article = new ArticleViewModel()
             {
-                Id = 5,
+                Id = 15,
                 Name = "HDD2",
                 UnitPrice = 755
             };
@@ -120,9 +130,9 @@ namespace KoiosOffersTests
         [Fact]
         public async Task DeleteArticleNonExistingId()
         {
-            IRepository<Article, int> sut = GetInMemoryForArticle();
+            var sut = GetInMemoryForArticle();
 
-            int id = 2;
+            var id = 75;
 
             await Assert.ThrowsAsync<InvalidOperationException>(() => sut.DeleteAsync(id));
         }
@@ -130,41 +140,51 @@ namespace KoiosOffersTests
         [Fact]
         public async Task WillDeleteArticle()
         {
-            IRepository<Article, int> sut = GetInMemoryForArticle();
+            var id = 1;
 
-            int id = 1;
+            var sut = GetInMemoryForArticle();
 
-            int result = await sut.DeleteAsync(id);
+            ArticleViewModel article = new ArticleViewModel()
+            {
+                Id = id,
+                Name = "HDD1",
+                UnitPrice = 750
+            };
 
-            Assert.True(result > 0);
+            int saved = await sut.AddAsync(article);
+
+            int deleted = await sut.DeleteAsync(id);
+
+            Assert.True(deleted.Equals(0));
         }
 
         [Fact]
         public async Task WillCreateOfferArticle()
         {
-            IRepository<OfferArticle, int> sut = GetInMemoryForOfferArticle();
+            IRepository<int> sut = GetInMemoryForOfferArticle();
 
-            Article article1 = new Article()
+            var articleint = 1;
+            var offerint = 1;
+
+            ArticleViewModel article1 = new ArticleViewModel()
             {
-                Id = 0,
+                Id = articleint,
                 Name = "HDD1",
                 UnitPrice = 700
             };
 
-            Offer offer = new Offer()
+            OfferViewModel offer = new OfferViewModel()
             {
-                Id = 1,
+                Id = offerint,
                 Number = 5,
                 TotalPrice = 1500
             };
 
-            OfferArticle offerArticle = new OfferArticle()
+            OfferArticleViewModel offerArticle = new OfferArticleViewModel()
             {
-                Id = 0,
-                Article = article1,
-                ArticleId = article1.Id,
-                Offer = offer,
-                OfferId = 1
+                Id =7,
+                ArticleId = articleint,
+                OfferId = offerint
             };
 
             int result = await sut.AddAsync(offerArticle);
@@ -173,62 +193,23 @@ namespace KoiosOffersTests
         }
 
         [Fact]
-        public async Task EnsureRelatedDataExists()
+        public async Task WillCreateRelatedData()
         {
+            var sut = GetInMemoryForOfferArticle();
+
+            List<OfferArticleViewModel> filledOffers = InMemoryMock.MockOfferArticles();
+
             int saved = 0;
 
-            IRepository<OfferArticle, int> sut = GetInMemoryForOfferArticle();
-
-            Article article1 = new Article()
+            foreach(OfferArticleViewModel offerArticle in filledOffers)
             {
-                Id = 10,
-                Name = "HDD7",
-                UnitPrice = 700
-            };
-
-            Offer offer = new Offer()
-            {
-                Id = 2,
-                Number = 6,
-                TotalPrice = 1500
-            };
-
-            OfferArticle offerArticle1 = new OfferArticle()
-            {
-                Id = 1,
-                Article = article1,
-                ArticleId = article1.Id,
-                Offer = offer,
-                OfferId = offer.Id,
-            };
-
-            if(await sut.AddAsync(offerArticle1) > 0)
-            {
-                saved++;
+                if(await sut.AddAsync(offerArticle) > 0)
+                {
+                    saved++;
+                }
             }
 
-            Article article2 = new Article()
-            {
-                Id = 12,
-                Name = "SSD3",
-                UnitPrice = 1000
-            };
-
-            OfferArticle offerArticle2 = new OfferArticle()
-            {
-                Id = 2,
-                Article = article2,
-                ArticleId = article2.Id,
-                Offer = offer,
-                OfferId = offer.Id
-            };
-
-            if (await sut.AddAsync(offerArticle2) > 0)
-            {
-                saved++;
-            }
-
-            Assert.True(saved.Equals(2));
+            Assert.Equal(50000, saved);
         }
     }
 }
