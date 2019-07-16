@@ -10,7 +10,8 @@ using System.Threading.Tasks;
 
 namespace KoiosOffers.Data
 {
-    public class OfferHandler : IRepository<int>
+    public class OfferHandler<TId> : IOfferHandler<TId>
+        where TId : struct
     {
         private readonly OfferContext _dbContext;
 
@@ -19,50 +20,69 @@ namespace KoiosOffers.Data
             _dbContext = dbContext;
         }
 
-        public async Task<int> AddAsync(IViewModel viewModel)
+        public async Task<int> AddAsync(OfferViewModel viewModel)
         {
-            var converted = ModelConverter.ToOffer((OfferViewModel)viewModel);
-            _dbContext.Set<Offer>().Add(converted);
-            int result = await _dbContext.SaveChangesAsync();
+            var objectToFind = _dbContext.ChangeTracker.Entries()
+                .Where(a => a.State == EntityState.Added && a.Entity.GetType().Name.Equals("Offer"))
+                .Select(a => a.Entity as Offer);
 
-            _dbContext.Entry(converted).State = EntityState.Detached;
+            _dbContext.Offer.Where(a => a.Id.Equals(viewModel.Id)).ToList().AddRange(objectToFind);
+
+            foreach (var item in _dbContext.Offer)
+            {
+                if (item.Id == viewModel.Id)
+                {
+                    return 0;
+                }
+            }
+
+            var converted = ModelConverter.ToOffer(viewModel);
+            int result = 0;
+            _dbContext.Offer.Add(converted);
+
+            result = await _dbContext.SaveChangesAsync();
+
+            
 
             return result;
         }
 
-        public async Task<int> DeleteAsync(int id)
+        public async Task<int> DeleteAsync(TId id)
         {
-            IEnumerable<IViewModel> result = await GetAsync(o => ((IId<int>)o).Id.Equals(id));
-            Offer entity = (Offer)result.First();
+            IEnumerable<OfferViewModel> result = await GetAsync(o => ((IId<TId>)o).Id.Equals(id));
+            Offer entity = ModelConverter.ToOffer(result.First());
+            _dbContext.Entry(entity).State = EntityState.Deleted;
             _dbContext.Set<Offer>().Remove(entity);
             return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<IViewModel>> GetAsync(Expression<Func<IViewModel, bool>> filter = null, int skip = 0, int take = 0, string term = "")
+        public async Task<IEnumerable<OfferViewModel>> GetAsync(Expression<Func<OfferViewModel, bool>> filter = null, int skip = 0, int take = 0, string term = "")
         {
-            var query = (IEnumerable<IViewModel>)_dbContext.Set<Offer>();
+            var query = (IEnumerable<Offer>)await _dbContext.Set<Offer>().ToListAsync();
+
+            var converted = ModelConverter.ToOfferViewModelEnumerable(query);
 
             if (filter != null)
             {
-                query = query.Where(filter.Compile());
+                converted = converted.Where(filter.Compile());
             }
 
             if (skip > 0)
             {
-                query = query.Skip(skip);
+                converted = converted.Skip(skip);
             }
 
             if (take > 0)
             {
-                query = query.Take(take);
+                converted = converted.Take(take);
             }
 
-            return await query.AsQueryable().ToListAsync();
+            return converted;
         }
 
-        public async Task<int> UpdateAsync(IViewModel model)
+        public async Task<int> UpdateAsync(OfferViewModel model)
         {
-            _dbContext.Set<Offer>().Update((Offer)model);
+            _dbContext.Set<Offer>().Update(ModelConverter.ToOffer(model));
             return await _dbContext.SaveChangesAsync();
         }
     }

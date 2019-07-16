@@ -55,5 +55,40 @@ namespace KoiosOffers.Data
 
             return viewModelCollection;
         }
+
+        public static IEnumerable<OfferViewModel> ToOfferViewModelEnumerable(IEnumerable<Offer> offerCollection)
+        {
+            List<OfferViewModel> viewModelCollection = new List<OfferViewModel>();
+
+            foreach (var item in offerCollection)
+            {
+                viewModelCollection.Add(new OfferViewModel()
+                {
+                    Id = item.Id,
+                    CreatedAt = item.CreatedAt,
+                    Number = item.Number,
+                    TotalPrice = item.TotalPrice
+                });
+            }
+
+            return viewModelCollection;
+        }
+
+        public static IEnumerable<OfferArticleViewModel> ToOfferArticleViewModelEnumerable(IEnumerable<OfferArticle> offerArticleCollection)
+        {
+            List<OfferArticleViewModel> viewModelCollection = new List<OfferArticleViewModel>();
+
+            foreach (var item in offerArticleCollection)
+            {
+                viewModelCollection.Add(new OfferArticleViewModel()
+                {
+                    Id = item.Id,
+                    ArticleId = item.ArticleId,
+                    OfferId = item.OfferId
+                });
+            }
+
+            return viewModelCollection;
+        }
     }
 }
