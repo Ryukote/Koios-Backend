@@ -55,11 +55,11 @@ namespace KoiosOffers.Migrations
 
             modelBuilder.Entity("KoiosOffers.Models.OfferArticle", b =>
                 {
-                    b.Property<int>("ArticleId");
+                    b.Property<int>("Id");
 
                     b.Property<int>("OfferId");
 
-                    b.HasKey("ArticleId", "OfferId");
+                    b.HasKey("Id", "OfferId");
 
                     b.HasIndex("OfferId");
 
@@ -70,7 +70,7 @@ namespace KoiosOffers.Migrations
                 {
                     b.HasOne("KoiosOffers.Models.Article", "Article")
                         .WithMany("OfferArticles")
-                        .HasForeignKey("ArticleId")
+                        .HasForeignKey("Id")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("KoiosOffers.Models.Offer", "Offer")

@@ -8,6 +8,10 @@ namespace KoiosOffers.Models
         {
         }
 
+        public DbSet<Article> Article { get; set; }
+        public DbSet<Offer> Offer { get; set; }
+        public DbSet<OfferArticle> OfferArticle { get; set; }
+
         /// <summary>
         /// Using Fluent API to define tables in db.
         /// </summary>
@@ -15,7 +19,7 @@ namespace KoiosOffers.Models
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<OfferArticle>()
-                .HasKey(oa => new { oa.ArticleId, oa.OfferId });
+                .HasKey(oa => new { oa.Id, oa.OfferId });
             modelBuilder.Entity<OfferArticle>()
                 .HasOne(oa => oa.Offer)
                 .WithMany(a => a.OfferArticles)

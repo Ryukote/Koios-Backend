@@ -41,15 +41,15 @@ namespace KoiosOffers.Migrations
                 name: "OfferArticle",
                 columns: table => new
                 {
-                    ArticleId = table.Column<int>(nullable: false),
+                    Id = table.Column<int>(nullable: false),
                     OfferId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OfferArticle", x => new { x.ArticleId, x.OfferId });
+                    table.PrimaryKey("PK_OfferArticle", x => new { x.Id, x.OfferId });
                     table.ForeignKey(
-                        name: "FK_OfferArticle_Article_ArticleId",
-                        column: x => x.ArticleId,
+                        name: "FK_OfferArticle_Article_Id",
+                        column: x => x.Id,
                         principalTable: "Article",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
