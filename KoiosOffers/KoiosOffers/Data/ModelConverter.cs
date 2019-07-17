@@ -102,5 +102,33 @@ namespace KoiosOffers.Data
 
             return viewModelCollection;
         }
+
+        public static ICollection<OfferArticleViewModel> ToOfferArticleViewModelCollection(IEnumerable<OfferArticle> offerArticleCollection)
+        {
+            List<OfferArticleViewModel> viewModelCollection = new List<OfferArticleViewModel>();
+
+            foreach (var item in offerArticleCollection)
+            {
+                viewModelCollection.Add(new OfferArticleViewModel()
+                {
+                    Id = item.Id,
+                    ArticleId = item.ArticleId,
+                    OfferId = item.OfferId
+                });
+            }
+
+            return viewModelCollection;
+        }
+
+        public static ArticleViewModel ToArticleViewModel(Article item)
+        {
+            return new ArticleViewModel()
+            {
+                Id = item.Id,
+                Name = item.Name,
+                OfferArticles = ToOfferArticleViewModelCollection(item.OfferArticles),
+                UnitPrice = item.UnitPrice
+            };
+        }
     }
 }

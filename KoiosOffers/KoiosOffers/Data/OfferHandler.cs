@@ -50,7 +50,6 @@ namespace KoiosOffers.Data
                         _dbContext.Article.Add(article);
                     }
 
-                    //var article = ModelConverter.ToArticle(item);
                     totalPrice += item.UnitPrice;
                     
                     _dbContext.OfferArticle.Add(new OfferArticle()

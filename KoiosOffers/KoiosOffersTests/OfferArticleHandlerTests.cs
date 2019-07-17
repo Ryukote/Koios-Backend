@@ -15,45 +15,17 @@ namespace KoiosOffersTests
 {
     public class OfferArticleHandlerTests
     {
-        private static string _databaseName = Guid.NewGuid().ToString();
-        public static readonly ILoggerFactory loggerFactory = new LoggerFactory(new[] {
-#pragma warning disable CS0618 // Type or member is obsolete
-            new ConsoleLoggerProvider((_, __) => true, true)
-#pragma warning restore CS0618 // Type or member is obsolete
-        });
-
-        public OfferArticleHandlerTests()
-        {
-            //_databaseName = Guid.NewGuid().ToString();
-        }
-
-        //private static IOfferArticleHandler<int> GetInMemoryForOfferArticle()
-        //{
-        //    DbContextOptions<OfferContext> options;
-        //    var builder = new DbContextOptionsBuilder<OfferContext>();
-        //    builder.UseInMemoryDatabase(databaseName: _databaseName);
-        //    builder.UseLoggerFactory(loggerFactory);
-        //    builder.EnableSensitiveDataLogging(true);
-        //    options = builder.Options;
-        //    OfferContext offerContext = new OfferContext(options);
-        //    offerContext.Database.EnsureDeleted();
-        //    offerContext.Database.EnsureCreated();
-        //    return new OfferArticleHandler<int>(offerContext);
-        //}
-
-        private static IArticleHandler<int> GetInMemoryForArticle(string databaseName)
+        private static IArticleHandler GetInMemoryForArticle(string databaseName)
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
             builder.UseInMemoryDatabase(databaseName: databaseName);
-            //builder.UseSqlServer("Server=192.168.1.108,1433;Database=Koios;User Id=sa;Password=Tresnjevka0");
-            builder.UseLoggerFactory(loggerFactory);
             builder.EnableSensitiveDataLogging(true);
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
 
             offerContext.Database.EnsureCreated();
-            return new ArticleHandler<int>(offerContext);
+            return new ArticleHandler(offerContext);
         }
 
         private static IOfferHandler<int> GetInMemoryForOffer(string databaseName)
@@ -61,8 +33,6 @@ namespace KoiosOffersTests
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
             builder.UseInMemoryDatabase(databaseName: databaseName);
-            //builder.UseSqlServer("Server=192.168.1.108,1433;Database=Koios;User Id=sa;Password=Tresnjevka0");
-            builder.UseLoggerFactory(loggerFactory);
             builder.EnableSensitiveDataLogging(true);
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
@@ -76,9 +46,6 @@ namespace KoiosOffersTests
             var databaseName = Guid.NewGuid().ToString();
 
             IOfferHandler<int> sut = GetInMemoryForOffer(databaseName);
-
-            var articleId = 1;
-            var offerId = 1;
 
             ArticleViewModel article = new ArticleViewModel()
             {
@@ -147,7 +114,7 @@ namespace KoiosOffersTests
             var databaseName = Guid.NewGuid().ToString();
 
             IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
-            IArticleHandler<int> articleSut = GetInMemoryForArticle(databaseName);
+            IArticleHandler articleSut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article1 = new ArticleViewModel()
             {
@@ -209,7 +176,7 @@ namespace KoiosOffersTests
             var databaseName = Guid.NewGuid().ToString();
 
             IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
-            IArticleHandler<int> articleSut = GetInMemoryForArticle(databaseName);
+            IArticleHandler articleSut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article1 = new ArticleViewModel()
             {
@@ -258,18 +225,16 @@ namespace KoiosOffersTests
             var databaseName = Guid.NewGuid().ToString();
 
             IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
-            IArticleHandler<int> articleSut = GetInMemoryForArticle(databaseName);
+            IArticleHandler articleSut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article1 = new ArticleViewModel()
             {
-                //Id = articleId,
                 Name = "HDD1",
                 UnitPrice = 700
             };
 
             ArticleViewModel article2 = new ArticleViewModel()
             {
-                //Id = articleId + 1,
                 Name = "HDD2",
                 UnitPrice = 900
             };
@@ -288,7 +253,6 @@ namespace KoiosOffersTests
             var specifiedOffer = await offerSut.GetByIdAsync(addedOfferArticleId);
 
             article1.Id = addedOfferArticleId;
-            article1.UnitPrice = 1000;
 
             await articleSut.DeleteAsync(article1.Id);
 

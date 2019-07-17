@@ -16,18 +16,18 @@ namespace KoiosOffers.Controllers
     [ApiController]
     public class ArticleController : ControllerBase
     {
-        private ArticleHandler<int> _article;
+        private ArticleHandler _article;
         private OfferContext _offerContext;
 
         public ArticleController(OfferContext offerContext)
         {
             _offerContext = offerContext;
-            _article = new ArticleHandler<int>(_offerContext);
+            _article = new ArticleHandler(_offerContext);
         }
 
         public ArticleController()
         {
-            _article = new ArticleHandler<int>(new OfferContext(new DbContextOptions<OfferContext>()));
+            _article = new ArticleHandler(new OfferContext(new DbContextOptions<OfferContext>()));
         }
 
         [HttpGet]

@@ -11,9 +11,7 @@ namespace KoiosOffersTests
 {
     public class ArticleHandlerTests
     {
-        private static string _databasename = Guid.NewGuid().ToString();
-
-        private static IArticleHandler<int> GetInMemoryForArticle(string databaseName)
+        private static IArticleHandler GetInMemoryForArticle(string databaseName)
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
@@ -21,21 +19,18 @@ namespace KoiosOffersTests
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
             offerContext.Database.EnsureCreated();
-            return new ArticleHandler<int>(offerContext);
+            return new ArticleHandler(offerContext);
         }
 
         [Fact]
         public async Task WillCreateArticle()
         {
-            var _id = 1;
-
             var databaseName = Guid.NewGuid().ToString();
 
             var sut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article = new ArticleViewModel()
             {
-                Id = _id,
                 Name = "HDD1",
                 UnitPrice = 750
             };
@@ -55,7 +50,6 @@ namespace KoiosOffersTests
 
             ArticleViewModel article = new ArticleViewModel()
             {
-                Id = 10,
                 Name = "HDD1",
                 UnitPrice = 750
             };
@@ -65,7 +59,7 @@ namespace KoiosOffersTests
             var result = await sut.AddAsync(article);
 
             Assert.False(article == null);
-            Assert.Equal(0, result);
+            Assert.True(result > 0);
         }
 
         [Fact]
@@ -75,18 +69,14 @@ namespace KoiosOffersTests
 
             var sut = GetInMemoryForArticle(databaseName);
 
-            var id = 0;
-
             ArticleViewModel article = new ArticleViewModel()
             {
-                Id = 10,
                 Name = "HDD1",
                 UnitPrice = 750
             };
 
             ArticleViewModel updatedArticle = new ArticleViewModel()
             {
-                Id = 10,
                 Name = "HDD2",
                 UnitPrice = 755
             };
@@ -137,23 +127,20 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            var id = 1;
-
             var sut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article = new ArticleViewModel()
             {
-                Id = id,
                 Name = "HDD1",
                 UnitPrice = 750
             };
 
-            await sut.AddAsync(article);
+            var addedId = await sut.AddAsync(article);
 
-            int deleted = await sut.DeleteAsync(id);
+            int deleted = await sut.DeleteAsync(addedId);
 
             Assert.False(article == null);
-            Assert.True(deleted.Equals(0));
+            Assert.True(deleted > 0);
         }
     }
 }

@@ -10,8 +10,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace KoiosOffers.Data
 {
-    public class ArticleHandler<TId> : IArticleHandler<TId>
-        where TId : struct
+    public class ArticleHandler : IArticleHandler
     {
         private readonly OfferContext _dbContext;
 
@@ -31,21 +30,104 @@ namespace KoiosOffers.Data
             }
 
             var converted = ModelConverter.ToArticle(viewModel);
-            int result = 0;
             _dbContext.Article.Add(converted);
 
-            result = await _dbContext.SaveChangesAsync();
+            await _dbContext.SaveChangesAsync();
 
-            return result;
+            return converted.Id;
         }
 
-        public async Task<int> DeleteAsync(TId id)
+        public async Task<int> DeleteAsync(int id)
         {
-            IEnumerable<ArticleViewModel> result = await GetAsync(o => ((IId<TId>)o).Id.Equals(id));
-            Article entity = ModelConverter.ToArticle(result.First());
-            _dbContext.Entry(entity).State = EntityState.Deleted;
-            _dbContext.Set<Article>().Remove(entity);
+            var articleToDelete = await GetByIdAsync(id);
+
+            var offerArticles = await _dbContext.OfferArticle
+                .Where(x => x.ArticleId == articleToDelete.Id)
+                .Select(x => x)
+                .ToListAsync();
+
+            var offerArticleIds = offerArticles
+                .Select(x => x.OfferId).ToList();
+
+            if(offerArticles.Count == 0)
+            {
+                var entity = ModelConverter.ToArticle(articleToDelete);
+
+                _dbContext.Article.Remove(entity);
+
+                return await _dbContext.SaveChangesAsync();
+            }
+
+            foreach(var item in offerArticles)
+            {
+                _dbContext.OfferArticle.Remove(item);
+
+                var offers = await _dbContext.Offer
+                    .Where(x => x.OfferArticles.Contains(item))
+                    .ToListAsync();
+
+                await _dbContext.SaveChangesAsync();
+
+                var offer = offers.First();
+
+                var prices = await _dbContext.OfferArticle
+                    .Where(x => x.OfferId == offer.Id)
+                    .Select(x => x.Article.UnitPrice)
+                    .ToListAsync();
+
+                decimal totalPrice = 0;
+
+                foreach(var price in prices)
+                {
+                    totalPrice += price;
+                }
+
+                offer.TotalPrice = totalPrice;
+
+                _dbContext.Offer.Update(offer);
+            }
+
+
+
+            //var entity = ModelConverter.ToArticle(articleToDelete);
+
+            //_dbContext.Article.Remove(entity);
+
             return await _dbContext.SaveChangesAsync();
+            //----------------------------------------------------------------------------------------
+            //kod koji trenutno radi as is
+            //----------------------------------------------------------------------------------------
+
+            //IEnumerable<ArticleViewModel> result = await GetAsync(o => ((IId<TId>)o).Id.Equals(id));
+            //Article entity = ModelConverter.ToArticle(result.First());
+            //_dbContext.Entry(entity).State = EntityState.Deleted;
+            //_dbContext.Set<Article>().Remove(entity);
+            //return await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<IEnumerable<ArticleViewModel>> GetAllAsync()
+        {
+            var query = await _dbContext.Article.ToListAsync();
+
+            var converted = ModelConverter.ToArticleViewModelEnumerable(query);
+
+            return converted;
+        }
+
+        public async Task<ArticleViewModel> GetByIdAsync(int id)
+        {
+            //.FindAsync(id)
+            var articles = await _dbContext.Article.Where(x => x.Id.Equals(id)).ToListAsync();
+
+            var wantedArticle = articles.First();
+            _dbContext.Entry(wantedArticle).State = EntityState.Detached;
+
+            if (wantedArticle.OfferArticles == null)
+            {
+                wantedArticle.OfferArticles = new List<OfferArticle>();
+            }
+
+            return ModelConverter.ToArticleViewModel(wantedArticle);
         }
 
         public async Task<IEnumerable<ArticleViewModel>> GetAsync(Expression<Func<ArticleViewModel, bool>> filter = null, int skip = 0, int take = 0, string term = "")
