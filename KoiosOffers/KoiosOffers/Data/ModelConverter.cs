@@ -25,17 +25,22 @@ namespace KoiosOffers.Data
                 Id = ((OfferViewModel)viewModel).Id,
                 Number = ((OfferViewModel)viewModel).Number,
                 CreatedAt = ((OfferViewModel)viewModel).CreatedAt,
-                TotalPrice = ((OfferViewModel)viewModel).TotalPrice
+                TotalPrice = ((OfferViewModel)viewModel).TotalPrice,
             };
         }
 
         public static OfferArticle ToOfferArticle(IViewModel viewModel)
         {
+            var article = ModelConverter.ToArticle(((OfferArticleViewModel)viewModel).Article);
+            var offer = ModelConverter.ToOffer(((OfferArticleViewModel)viewModel).Offer);
+
             return new OfferArticle()
             {
                 Id = ((OfferArticleViewModel)viewModel).Id,
-                ArticleId = ((OfferArticleViewModel)viewModel).Id,
-                OfferId = ((OfferArticleViewModel)viewModel).Id
+                ArticleId = ((OfferArticleViewModel)viewModel).ArticleId,
+                OfferId = ((OfferArticleViewModel)viewModel).OfferId,
+                Article = article,
+                Offer = offer
             };
         }
 
@@ -62,16 +67,23 @@ namespace KoiosOffers.Data
 
             foreach (var item in offerCollection)
             {
-                viewModelCollection.Add(new OfferViewModel()
-                {
-                    Id = item.Id,
-                    CreatedAt = item.CreatedAt,
-                    Number = item.Number,
-                    TotalPrice = item.TotalPrice
-                });
+                viewModelCollection.Add(ToOfferViewModel(item));
             }
 
             return viewModelCollection;
+        }
+
+        public static OfferViewModel ToOfferViewModel(Offer item)
+        {
+            //item.OfferArticles.
+            return new OfferViewModel()
+            {
+                Id = item.Id,
+                CreatedAt = item.CreatedAt,
+                Number = item.Number,
+                TotalPrice = item.TotalPrice,
+                Articles = null
+            };
         }
 
         public static IEnumerable<OfferArticleViewModel> ToOfferArticleViewModelEnumerable(IEnumerable<OfferArticle> offerArticleCollection)
@@ -89,6 +101,34 @@ namespace KoiosOffers.Data
             }
 
             return viewModelCollection;
+        }
+
+        public static ICollection<OfferArticleViewModel> ToOfferArticleViewModelCollection(IEnumerable<OfferArticle> offerArticleCollection)
+        {
+            List<OfferArticleViewModel> viewModelCollection = new List<OfferArticleViewModel>();
+
+            foreach (var item in offerArticleCollection)
+            {
+                viewModelCollection.Add(new OfferArticleViewModel()
+                {
+                    Id = item.Id,
+                    ArticleId = item.ArticleId,
+                    OfferId = item.OfferId
+                });
+            }
+
+            return viewModelCollection;
+        }
+
+        public static ArticleViewModel ToArticleViewModel(Article item)
+        {
+            return new ArticleViewModel()
+            {
+                Id = item.Id,
+                Name = item.Name,
+                OfferArticles = ToOfferArticleViewModelCollection(item.OfferArticles),
+                UnitPrice = item.UnitPrice
+            };
         }
     }
 }

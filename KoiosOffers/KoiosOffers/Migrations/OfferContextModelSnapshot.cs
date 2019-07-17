@@ -25,7 +25,8 @@ namespace KoiosOffers.Migrations
                         .ValueGeneratedOnAdd()
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<string>("Name");
+                    b.Property<string>("Name")
+                        .IsRequired();
 
                     b.Property<decimal>("UnitPrice");
 
@@ -53,11 +54,17 @@ namespace KoiosOffers.Migrations
 
             modelBuilder.Entity("KoiosOffers.Models.OfferArticle", b =>
                 {
-                    b.Property<int>("Id");
+                    b.Property<int>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
+
+                    b.Property<int>("ArticleId");
 
                     b.Property<int>("OfferId");
 
-                    b.HasKey("Id", "OfferId");
+                    b.HasKey("Id");
+
+                    b.HasIndex("ArticleId");
 
                     b.HasIndex("OfferId");
 
@@ -68,7 +75,7 @@ namespace KoiosOffers.Migrations
                 {
                     b.HasOne("KoiosOffers.Models.Article", "Article")
                         .WithMany("OfferArticles")
-                        .HasForeignKey("Id")
+                        .HasForeignKey("ArticleId")
                         .OnDelete(DeleteBehavior.Cascade);
 
                     b.HasOne("KoiosOffers.Models.Offer", "Offer")

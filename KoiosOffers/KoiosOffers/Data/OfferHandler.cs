@@ -22,49 +22,93 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddAsync(OfferViewModel viewModel)
         {
-            var objectToFind = _dbContext.ChangeTracker.Entries()
-                .Where(a => a.State == EntityState.Added && a.Entity.GetType().Name.Equals("Offer"))
-                .Select(a => a.Entity as Offer);
+            var existingOffer = _dbContext.Offer.Where(x => x.Id.Equals(viewModel.Id)).FirstOrDefault();
 
-            _dbContext.Offer.Where(a => a.Id.Equals(viewModel.Id)).ToList().AddRange(objectToFind);
-
-            foreach (var item in _dbContext.Offer)
+            if (existingOffer != null)
             {
-                if (item.Id == viewModel.Id)
-                {
-                    return 0;
-                }
+                return 0;
             }
 
             var converted = ModelConverter.ToOffer(viewModel);
-            int result = 0;
             _dbContext.Offer.Add(converted);
 
-            result = await _dbContext.SaveChangesAsync();
+            var articleIds = viewModel.Articles.Select(x => x.Id);
 
-            
+            var existingArticles = _dbContext.Article.Where(x => articleIds.Contains(x.Id));
 
-            return result;
+            decimal totalPrice = 0;
+
+            if (viewModel.Articles != null || viewModel.Articles.Count > 0)
+            {
+                foreach(var item in viewModel.Articles)
+                {
+                    var article = existingArticles.FirstOrDefault(x => x.Id.Equals(item.Id));
+
+                    if(article == null)
+                    {
+                        article = ModelConverter.ToArticle(item);
+                        _dbContext.Article.Add(article);
+                    }
+
+                    totalPrice += item.UnitPrice;
+                    
+                    _dbContext.OfferArticle.Add(new OfferArticle()
+                    {
+                        Offer = converted,
+                        Article = article
+                    });
+                }
+            }
+
+            converted.TotalPrice = totalPrice;
+            _dbContext.Offer.Add(converted);
+            await _dbContext.SaveChangesAsync();
+            return converted.Id;
         }
 
         public async Task<int> DeleteAsync(TId id)
         {
-            IEnumerable<OfferViewModel> result = await GetAsync(o => ((IId<TId>)o).Id.Equals(id));
-            Offer entity = ModelConverter.ToOffer(result.First());
-            _dbContext.Entry(entity).State = EntityState.Deleted;
-            _dbContext.Set<Offer>().Remove(entity);
+            var result = _dbContext.Offer.FirstOrDefault(x => x.Id.Equals(id));
+
+            if (result != null)
+            {
+                _dbContext.Offer.Remove(result);
+            }
+
+            else
+            {
+                throw new ArgumentException("Provided id is not valid.", nameof(id));
+            }
+
             return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<OfferViewModel>> GetAsync(Expression<Func<OfferViewModel, bool>> filter = null, int skip = 0, int take = 0, string term = "")
+        public async Task<IEnumerable<OfferViewModel>> GetAllAsync()
         {
-            var query = (IEnumerable<Offer>)await _dbContext.Set<Offer>().ToListAsync();
+            var query = await _dbContext.Offer.ToListAsync();
+
+            var converted = ModelConverter.ToOfferViewModelEnumerable(query);
+
+            return converted;
+        }
+
+        public async Task<OfferViewModel> GetByIdAsync(int id)
+        {
+            //.FindAsync(id)
+            var offer = await _dbContext.Offer.Where(x => x.Id.Equals(id)).ToListAsync();
+
+            return ModelConverter.ToOfferViewModel(offer.First());
+        }
+
+        public async Task<IEnumerable<OfferViewModel>> GetAsync(Func<OfferViewModel, bool> filter = null, int skip = 0, int take = 0, string term = "")
+        {
+            var query = _dbContext.Offer;
 
             var converted = ModelConverter.ToOfferViewModelEnumerable(query);
 
             if (filter != null)
             {
-                converted = converted.Where(filter.Compile());
+                converted = converted.Where(filter);
             }
 
             if (skip > 0)

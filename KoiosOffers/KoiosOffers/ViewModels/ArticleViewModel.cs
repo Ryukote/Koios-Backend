@@ -1,11 +1,12 @@
 ﻿using KoiosOffers.Contracts;
+using KoiosOffers.Models;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace KoiosOffers.ViewModels
 {
-    public class ArticleViewModel : IId<int>, IViewModel, IValidatableObject
+    public class ArticleViewModel : IId<int>, IViewModel
     {
         [Required]
         public int Id { get; set; }
@@ -14,12 +15,6 @@ namespace KoiosOffers.ViewModels
         [Required]
         public decimal UnitPrice { get; set; }
 
-        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
-        {
-            if (this == null)
-            {
-                yield return new ValidationResult("Article not provided");
-            }
-        }
+        public ICollection<OfferArticleViewModel> OfferArticles { get; set; }
     }
 }

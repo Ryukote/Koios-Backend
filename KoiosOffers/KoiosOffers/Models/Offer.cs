@@ -8,7 +8,6 @@ namespace KoiosOffers.Models
 {
     public class Offer : IId<int>, IViewModel
     {
-        [Required]
         public int Id { get; set; }
         [Required]
         public int Number { get; set; }
@@ -17,6 +16,6 @@ namespace KoiosOffers.Models
         [Required]
         public decimal TotalPrice { get; set; }
 
-        public ICollection<OfferArticle> OfferArticles { get; set; }
+        public virtual ICollection<OfferArticle> OfferArticles { get; set; }
     }
 }

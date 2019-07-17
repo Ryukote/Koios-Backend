@@ -16,24 +16,24 @@ namespace KoiosOffers.Controllers
     [ApiController]
     public class ArticleController : ControllerBase
     {
-        private ArticleHandler<int> _article;
+        private ArticleHandler _article;
         private OfferContext _offerContext;
 
         public ArticleController(OfferContext offerContext)
         {
             _offerContext = offerContext;
-            _article = new ArticleHandler<int>(_offerContext);
+            _article = new ArticleHandler(_offerContext);
         }
 
         public ArticleController()
         {
-            _article = new ArticleHandler<int>(new OfferContext(new DbContextOptions<OfferContext>()));
+            _article = new ArticleHandler(new OfferContext(new DbContextOptions<OfferContext>()));
         }
 
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery]ArticleGetViewModel articleGetViewModel)
         {
-            var results = await _article.GetAsync(o => ((ArticleViewModel)o).Name.Equals(articleGetViewModel.Name), (int)articleGetViewModel.Skip, (int)articleGetViewModel.Take, "");
+            var results = await _article.GetAsync();
 
             if(results.ToList().Count > 0)
             {
