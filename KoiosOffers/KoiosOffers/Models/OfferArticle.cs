@@ -1,5 +1,6 @@
 ﻿using KoiosOffers.Contracts;
 using System;
+using System.ComponentModel.DataAnnotations;
 
 namespace KoiosOffers.Models
 {

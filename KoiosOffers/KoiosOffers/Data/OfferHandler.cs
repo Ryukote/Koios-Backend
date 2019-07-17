@@ -22,37 +22,66 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddAsync(OfferViewModel viewModel)
         {
-            var objectToFind = _dbContext.ChangeTracker.Entries()
-                .Where(a => a.State == EntityState.Added && a.Entity.GetType().Name.Equals("Offer"))
-                .Select(a => a.Entity as Offer);
+            var existingOffer = _dbContext.Offer.Where(x => x.Id.Equals(viewModel.Id)).FirstOrDefault();
 
-            _dbContext.Offer.Where(a => a.Id.Equals(viewModel.Id)).ToList().AddRange(objectToFind);
-
-            foreach (var item in _dbContext.Offer)
+            if (existingOffer != null)
             {
-                if (item.Id == viewModel.Id)
-                {
-                    return 0;
-                }
+                return 0;
             }
 
             var converted = ModelConverter.ToOffer(viewModel);
             int result = 0;
+
+            var articleIds = viewModel.Articles.Select(x => x.Id);
+
+            var existingArticles = _dbContext.Article.Where(x => articleIds.Contains(x.Id));
+
+            foreach (var item in viewModel.Articles)
+            {
+                var article = existingArticles.FirstOrDefault(x => x.Id == item.Id);
+
+                //_dbContext.Entry(article).State = EntityState.Added;
+
+                if (article == null)
+                {
+                    
+
+                    article = ModelConverter.ToArticle(item);
+                    _dbContext.Article.Add(article);
+
+                    await _dbContext.SaveChangesAsync();
+                }
+
+                var offerArticle = new OfferArticle()
+                {
+                    Offer = converted,
+                    Article = article
+                };
+
+                _dbContext.Add(offerArticle);
+            }
+
             _dbContext.Offer.Add(converted);
 
             result = await _dbContext.SaveChangesAsync();
-
-            
 
             return result;
         }
 
         public async Task<int> DeleteAsync(TId id)
         {
-            IEnumerable<OfferViewModel> result = await GetByIdAsync(id);
-            Offer entity = ModelConverter.ToOffer(result.First());
-            _dbContext.Entry(entity).State = EntityState.Deleted;
-            _dbContext.Set<Offer>().Remove(entity);
+            var result = _dbContext.Offer.FirstOrDefault(x => x.Id.Equals(id));
+
+            if (result != null)
+            {
+                _dbContext.Offer.Remove(result);
+            }
+
+            else
+            {
+                throw new ArgumentException("Provided id is not valid.", nameof(id));
+            }
+
             return await _dbContext.SaveChangesAsync();
         }
 
