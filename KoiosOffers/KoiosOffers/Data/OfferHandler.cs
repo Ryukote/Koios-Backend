@@ -49,22 +49,38 @@ namespace KoiosOffers.Data
 
         public async Task<int> DeleteAsync(TId id)
         {
-            IEnumerable<OfferViewModel> result = await GetAsync(o => ((IId<TId>)o).Id.Equals(id));
+            IEnumerable<OfferViewModel> result = await GetByIdAsync(id);
             Offer entity = ModelConverter.ToOffer(result.First());
             _dbContext.Entry(entity).State = EntityState.Deleted;
             _dbContext.Set<Offer>().Remove(entity);
             return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<OfferViewModel>> GetAsync(Expression<Func<OfferViewModel, bool>> filter = null, int skip = 0, int take = 0, string term = "")
+        public async Task<IEnumerable<OfferViewModel>> GetAllAsync()
         {
-            var query = (IEnumerable<Offer>)await _dbContext.Set<Offer>().ToListAsync();
+            var query = await _dbContext.Offer.ToListAsync();
+
+            var converted = ModelConverter.ToOfferViewModelEnumerable(query);
+
+            return converted;
+        }
+
+        public async Task<OfferViewModel> GetByIdAsync(int id)
+        {
+            var offer = await _dbContext.Offer.FindAsync(id);
+
+            return ModelConverter.ToOfferViewModel(offer);
+        }
+
+        public async Task<IEnumerable<OfferViewModel>> GetAsync(Func<OfferViewModel, bool> filter = null, int skip = 0, int take = 0, string term = "")
+        {
+            var query = _dbContext.Offer;
 
             var converted = ModelConverter.ToOfferViewModelEnumerable(query);
 
             if (filter != null)
             {
-                converted = converted.Where(filter.Compile());
+                converted = converted.Where(filter);
             }
 
             if (skip > 0)

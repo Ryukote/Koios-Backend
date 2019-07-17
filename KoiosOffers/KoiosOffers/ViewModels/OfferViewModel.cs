@@ -1,5 +1,7 @@
 ﻿using KoiosOffers.Contracts;
+using KoiosOffers.Models;
 using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace KoiosOffers.ViewModels
@@ -14,5 +16,7 @@ namespace KoiosOffers.ViewModels
         public DateTime CreatedAt { get; set; }
         [Required]
         public decimal TotalPrice { get; set; }
+
+        public ICollection<OfferArticle> OfferArticles { get; set; }
     }
 }

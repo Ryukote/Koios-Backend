@@ -6,9 +6,9 @@ namespace KoiosOffers.ViewModels
 {
     public class ArticleGetViewModel : IViewModel
     {
-        public string Name { get; set; }
-        public decimal? UnitPrice { get; set; }
-        public int? Skip { get; set; }
-        public int? Take { get; set; }
+        public string Name { get; set; } = "";
+        public decimal? UnitPrice { get; set; } = default;
+        public int? Skip { get; set; } = default;
+        public int? Take { get; set; } = default;
     }
 }

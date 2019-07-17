@@ -1,4 +1,5 @@
-﻿using KoiosOffers.Models;
+﻿using KoiosOffers.Data;
+using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using System;
 using System.Collections.Generic;
@@ -51,20 +52,26 @@ namespace KoiosOffersTests
 
             int counter = 0;
 
-            foreach (Offer offer in offers)
+            lock (connectedOffers)
             {
-                for (int i = 0; i < 5; i++)
+                foreach (Offer offer in offers)
                 {
-                    connectedOffers.Add(new OfferArticleViewModel()
-                    {                        
-                        Id = articles[counter].Id,
-                        ArticleId = counter,
-                        OfferId = offer.Id
-                    });
+                    for (int i = 0; i < 5; i++)
+                    {
+                        connectedOffers.Add(new OfferArticleViewModel()
+                        {
+                            Id = articles[counter].Id,
+                            ArticleId = counter,
+                            OfferId = offer.Id,
+                            Article = articles[counter],
+                            Offer = offer
+                        });
 
-                    counter++;
+                        counter++;
+                    }
                 }
             }
+            
 
             return connectedOffers;
         }
