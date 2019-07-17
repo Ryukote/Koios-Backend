@@ -80,7 +80,59 @@ namespace KoiosOffers.Data
 
         public async Task<int> UpdateAsync(ArticleViewModel model)
         {
-            _dbContext.Set<Article>().Update(ModelConverter.ToArticle(model));
+            _dbContext.Entry(ModelConverter.ToArticle(model)).State = EntityState.Detached; //Detached
+
+            var originalPrice = (from articles in await _dbContext.Article.AsNoTracking().ToListAsync()
+                                where articles.Id == model.Id
+
+                                select articles.UnitPrice).First();
+
+            //_dbContext.Set<Article>().AsNoTracking();
+            //_dbContext.Entry(ModelConverter.ToArticle(model)).State = EntityState.Modified; //Detached
+            _dbContext.Article.Update(ModelConverter.ToArticle(model));
+
+            await _dbContext.SaveChangesAsync();
+
+            if (originalPrice != model.UnitPrice)
+            {
+                //get all OfferId that contains specified ArticleId
+                var offerIdList = from offerArticles in await _dbContext.OfferArticle.ToListAsync()
+                                  where offerArticles.ArticleId == model.Id
+
+                                  select offerArticles.OfferId;
+
+                //foreach OfferId in offerIdList update TotalPrice
+                foreach(var offerId in offerIdList)
+                {
+                    decimal unitPriceSum = 0;
+
+                    var offerArticles = await _dbContext.OfferArticle.ToListAsync();
+
+                    foreach (var item in offerArticles)
+                    {
+                        unitPriceSum += _dbContext.Article.Where(a => a.Id.Equals(item.ArticleId)).Select(a => a.UnitPrice).FirstOrDefault();
+                    }
+
+                    var offer = await _dbContext.Offer.Where(o => o.Id.Equals(offerId)).FirstOrDefaultAsync();
+
+                    if (offer != null)
+                    {
+                        offer.TotalPrice = unitPriceSum;
+
+                         //Detached
+                        _dbContext.Offer.Update(offer);
+                        
+                        //await _dbContext.SaveChangesAsync();
+                        
+                        //_dbContext.Set<Article>().Update(ModelConverter.ToArticle(model));
+                    }
+                }
+            }
+
+            //_dbContext.Entry(ModelConverter.ToArticle(model)).State = EntityState.Detached;
+            //_dbContext.Article.Update(ModelConverter.ToArticle(model));
+
+
             return await _dbContext.SaveChangesAsync();
         }
     }

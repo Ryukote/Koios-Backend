@@ -4,6 +4,8 @@ using KoiosOffers.ViewModels;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -56,6 +58,26 @@ namespace KoiosOffersTests
             Assert.NotNull(result);
             Assert.True(result is BadRequestResult);
             Assert.Equal(StatusCodes.Status400BadRequest, ((BadRequestResult)result).StatusCode);
+        }
+
+        [Fact]
+        public async Task WillGetAllArticles()
+        {
+            ArticleController controller = new ArticleController(SetupContext());
+
+            ArticleGetViewModel model = new ArticleGetViewModel();
+
+            var result = await controller.Get(model);
+
+            var json = ((ViewResult)result).Model;
+
+            var jsonCollection = JsonConvert.DeserializeObject<ICollection<ArticleViewModel>>(json.ToString());
+
+            Assert.NotNull(result);
+            Assert.True(result is OkResult);
+            Assert.Equal(StatusCodes.Status200OK, ((OkResult)result).StatusCode);
+            Assert.True(json is JsonResult);
+            Assert.True(jsonCollection.Count > 0);
         }
     }
 }

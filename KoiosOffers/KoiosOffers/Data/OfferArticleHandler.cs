@@ -22,23 +22,48 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddAsync(OfferArticleViewModel viewModel)
         {
-            var objectToFind = _dbContext.ChangeTracker.Entries()
-                .Where(a => a.State == EntityState.Added && a.Entity.GetType().Name.Equals("OfferArticle"))
-                .Select(a => a.Entity as OfferArticle);
+            var objectToFind = from entry in _dbContext.OfferArticle
+                               where entry.Id == viewModel.Id
+                               select entry;
 
-            _dbContext.OfferArticle.Where(a => a.Id.Equals(viewModel.Id)).ToList().AddRange(objectToFind);
-
-            foreach (var item in _dbContext.OfferArticle)
+            if (objectToFind.Count() > 0)
             {
-                if (item.Id == viewModel.Id)
-                {
-                    return 0;
-                }
+                return 0;
+            }
+
+            if (viewModel.Article == null)
+            {
+                viewModel.Article = new Article();
+            }
+
+            if (viewModel.Offer == null)
+            {
+                viewModel.Offer = new Offer();
             }
 
             var converted = ModelConverter.ToOfferArticle(viewModel);
             int result = 0;
             _dbContext.OfferArticle.Add(converted);
+
+            decimal unitPriceSum = 0;
+            await _dbContext.SaveChangesAsync();
+            //_dbContext.Entry(converted).State = EntityState.Detached;
+            var offerArticles = await _dbContext.OfferArticle.ToListAsync();
+
+            foreach (var item in offerArticles)
+            {
+                unitPriceSum += _dbContext.Article.Where(a => a.Id.Equals(item.ArticleId)).Select(a => a.UnitPrice).FirstOrDefault();
+            }
+
+            //find offer with specified offerId
+            var offer = await _dbContext.Offer.Where(o => o.Id.Equals(viewModel.OfferId)).FirstOrDefaultAsync();
+
+            if (offer != null)
+            {
+                offer.TotalPrice = unitPriceSum;
+
+                _dbContext.Offer.Update(offer);
+            }
 
             result = await _dbContext.SaveChangesAsync();
 
@@ -81,6 +106,26 @@ namespace KoiosOffers.Data
         public async Task<int> UpdateAsync(OfferArticleViewModel model)
         {
             _dbContext.Set<OfferArticle>().Update(ModelConverter.ToOfferArticle(model));
+
+            decimal unitPriceSum = 0;
+            _dbContext.Entry(ModelConverter.ToOfferArticle(model)).State = EntityState.Unchanged;
+
+            await _dbContext.SaveChangesAsync();
+
+            unitPriceSum += _dbContext.Article.Where(a => a.Id.Equals(model.ArticleId)).Select(a => a.UnitPrice).FirstOrDefault();
+
+            //find offer with specified offerId
+            var offer = await _dbContext.Offer.Where(o => o.Id.Equals(model.OfferId)).FirstOrDefaultAsync();
+
+            if (offer != null)
+            {
+                offer.TotalPrice = unitPriceSum;
+
+                _dbContext.Offer.Update(offer);
+            }
+
+            _dbContext.Entry(offer).State = EntityState.Detached;
+
             return await _dbContext.SaveChangesAsync();
         }
     }

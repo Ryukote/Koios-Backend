@@ -25,7 +25,7 @@ namespace KoiosOffers.Data
                 Id = ((OfferViewModel)viewModel).Id,
                 Number = ((OfferViewModel)viewModel).Number,
                 CreatedAt = ((OfferViewModel)viewModel).CreatedAt,
-                TotalPrice = ((OfferViewModel)viewModel).TotalPrice
+                TotalPrice = ((OfferViewModel)viewModel).TotalPrice,
             };
         }
 
@@ -34,8 +34,10 @@ namespace KoiosOffers.Data
             return new OfferArticle()
             {
                 Id = ((OfferArticleViewModel)viewModel).Id,
-                ArticleId = ((OfferArticleViewModel)viewModel).Id,
-                OfferId = ((OfferArticleViewModel)viewModel).Id
+                ArticleId = ((OfferArticleViewModel)viewModel).ArticleId,
+                OfferId = ((OfferArticleViewModel)viewModel).OfferId,
+                Article = ((OfferArticleViewModel)viewModel).Article,
+                Offer = ((OfferArticleViewModel)viewModel).Offer
             };
         }
 
@@ -62,16 +64,22 @@ namespace KoiosOffers.Data
 
             foreach (var item in offerCollection)
             {
-                viewModelCollection.Add(new OfferViewModel()
-                {
-                    Id = item.Id,
-                    CreatedAt = item.CreatedAt,
-                    Number = item.Number,
-                    TotalPrice = item.TotalPrice
-                });
+                viewModelCollection.Add(ToOfferViewModel(item));
             }
 
             return viewModelCollection;
+        }
+
+        public static OfferViewModel ToOfferViewModel(Offer item)
+        {
+            return new OfferViewModel()
+            {
+                Id = item.Id,
+                CreatedAt = item.CreatedAt,
+                Number = item.Number,
+                TotalPrice = item.TotalPrice,
+                OfferArticles = item.OfferArticles
+            };
         }
 
         public static IEnumerable<OfferArticleViewModel> ToOfferArticleViewModelEnumerable(IEnumerable<OfferArticle> offerArticleCollection)
