@@ -16,6 +16,6 @@ namespace KoiosOffers.Models
         [Required]
         public decimal UnitPrice { get; set; }
 
-        public ICollection<OfferArticle> OfferArticles { get; set; }
+        public virtual ICollection<OfferArticle> OfferArticles { get; set; }
     }
 }

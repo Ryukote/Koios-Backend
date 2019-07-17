@@ -13,11 +13,11 @@ namespace KoiosOffersTests
     {
         private static string _databasename = Guid.NewGuid().ToString();
 
-        private static IArticleHandler<int> GetInMemoryForArticle()
+        private static IArticleHandler<int> GetInMemoryForArticle(string databaseName)
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
-            builder.UseInMemoryDatabase(databaseName: "Test");
+            builder.UseInMemoryDatabase(databaseName: databaseName);
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
             offerContext.Database.EnsureCreated();
@@ -29,7 +29,9 @@ namespace KoiosOffersTests
         {
             var _id = 1;
 
-            var sut = GetInMemoryForArticle();
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article = new ArticleViewModel()
             {
@@ -47,7 +49,9 @@ namespace KoiosOffersTests
         [Fact]
         public async Task ArticleAlreadyExists()
         {
-            var sut = GetInMemoryForArticle();
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article = new ArticleViewModel()
             {
@@ -67,7 +71,9 @@ namespace KoiosOffersTests
         [Fact]
         public async Task WillUpdateArticle()
         {
-            var sut = GetInMemoryForArticle();
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
 
             var id = 0;
 
@@ -87,7 +93,7 @@ namespace KoiosOffersTests
 
             await sut.AddAsync(article);
 
-            var newSut = GetInMemoryForArticle();
+            var newSut = GetInMemoryForArticle(databaseName);
 
             int result = await newSut.UpdateAsync(updatedArticle);
 
@@ -99,7 +105,9 @@ namespace KoiosOffersTests
         [Fact]
         public async Task UpdateArticleNonExistingId()
         {
-            var sut = GetInMemoryForArticle();
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article = new ArticleViewModel()
             {
@@ -115,7 +123,9 @@ namespace KoiosOffersTests
         [Fact]
         public async Task DeleteArticleNonExistingId()
         {
-            var sut = GetInMemoryForArticle();
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
 
             var id = 75;
 
@@ -125,9 +135,11 @@ namespace KoiosOffersTests
         [Fact]
         public async Task WillDeleteArticle()
         {
+            var databaseName = Guid.NewGuid().ToString();
+
             var id = 1;
 
-            var sut = GetInMemoryForArticle();
+            var sut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article = new ArticleViewModel()
             {
@@ -136,7 +148,7 @@ namespace KoiosOffersTests
                 UnitPrice = 750
             };
 
-            int saved = await sut.AddAsync(article);
+            await sut.AddAsync(article);
 
             int deleted = await sut.DeleteAsync(id);
 

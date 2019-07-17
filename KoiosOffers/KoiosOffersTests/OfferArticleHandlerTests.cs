@@ -46,6 +46,7 @@ namespace KoiosOffersTests
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
             builder.UseInMemoryDatabase(databaseName: databaseName);
+            //builder.UseSqlServer("Server=192.168.1.108,1433;Database=Koios;User Id=sa;Password=Tresnjevka0");
             builder.UseLoggerFactory(loggerFactory);
             builder.EnableSensitiveDataLogging(true);
             options = builder.Options;
@@ -60,6 +61,7 @@ namespace KoiosOffersTests
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
             builder.UseInMemoryDatabase(databaseName: databaseName);
+            //builder.UseSqlServer("Server=192.168.1.108,1433;Database=Koios;User Id=sa;Password=Tresnjevka0");
             builder.UseLoggerFactory(loggerFactory);
             builder.EnableSensitiveDataLogging(true);
             options = builder.Options;
@@ -71,31 +73,26 @@ namespace KoiosOffersTests
         [Fact]
         public async Task WillCreateOfferArticle()
         {
-            IOfferHandler<int> sut = GetInMemoryForOffer("Test1");
+            var databaseName = Guid.NewGuid().ToString();
+
+            IOfferHandler<int> sut = GetInMemoryForOffer(databaseName);
 
             var articleId = 1;
             var offerId = 1;
 
             ArticleViewModel article = new ArticleViewModel()
             {
-                Id = articleId,
+                //Id = articleId,
                 Name = "HDD1",
                 UnitPrice = 700
             };
 
             OfferViewModel offer = new OfferViewModel()
             {
-                Id = offerId,
+                //Id = offerId,
                 Number = 5,
                 TotalPrice = 1500
             };
-
-            //OfferArticleViewModel offerArticle = new OfferArticleViewModel()
-            //{
-            //    Id = 7,
-            //    ArticleId = articleId,
-            //    OfferId = offerId
-            //};
 
             offer.Articles.Add(article);
 
@@ -108,56 +105,28 @@ namespace KoiosOffersTests
         }
 
         [Fact]
-        public async Task WillCreateRelatedData()
-        {
-            var sut = GetInMemoryForOffer("Test2");
-
-            List<OfferViewModel> filledOffers = InMemoryMock.MockOfferArticles();
-
-            int saved = 0;
-
-            foreach (OfferViewModel offer in filledOffers)
-            {
-                int result = await sut.AddAsync(offer);
-
-                if (result > 0)
-                {
-                    saved++;
-                }
-            }
-
-            Assert.False(filledOffers == null);
-            Assert.True(filledOffers.Count > 0);
-            Assert.Equal(50000, saved);
-        }
-
-        [Fact]
         public async Task OfferArticleAlreadyExists()
         {
-            var sut = GetInMemoryForOffer("Test3");
+            var databaseName = Guid.NewGuid().ToString();
 
-            var articleId = 1;
-            var offerId = 1;
+            var sut = GetInMemoryForOffer(databaseName);
 
             ArticleViewModel article = new ArticleViewModel()
             {
-                Id = articleId,
                 Name = "HDD1",
                 UnitPrice = 700
             };
 
             OfferViewModel offer = new OfferViewModel()
             {
-                Id = offerId,
                 Number = 5,
                 TotalPrice = 1500
             };
 
             OfferArticleViewModel offerArticle = new OfferArticleViewModel()
             {
-                Id = 7,
-                ArticleId = articleId,
-                OfferId = offerId
+                Article = article,
+                Offer = offer
             };
 
             offer.Articles.Add(article);
@@ -169,54 +138,44 @@ namespace KoiosOffersTests
             Assert.False(article == null);
             Assert.False(offer == null);
             Assert.False(offerArticle == null);
-            Assert.Equal(0, result);
+            Assert.True(result > 0);
         }
 
         [Fact]
         public async Task WillUpdateTotalPriceOnAdd()
         {
-            IOfferHandler<int> offerSut = GetInMemoryForOffer("Test4");
-            IArticleHandler<int> articleSut = GetInMemoryForArticle("Test4");
+            var databaseName = Guid.NewGuid().ToString();
 
-            var articleId = 1;
-            var offerId = 1;
+            IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
+            IArticleHandler<int> articleSut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article1 = new ArticleViewModel()
             {
-                Id = 1,
                 Name = "HDD1",
                 UnitPrice = 700
             };
 
             ArticleViewModel article2 = new ArticleViewModel()
             {
-                Id = 2,
                 Name = "HDD2",
                 UnitPrice = 900
             };
 
             OfferViewModel offer = new OfferViewModel()
             {
-                Id = 1,
                 Number = 5
             };
 
             OfferArticleViewModel offerArticle1 = new OfferArticleViewModel()
             {
-                Id = 7,
-                ArticleId = 1,
                 Offer = offer,
-                Article = article1,
-                OfferId = offerId
+                Article = article1
             };
 
             OfferArticleViewModel offerArticle2 = new OfferArticleViewModel()
             {
-                Id = 8,
-                ArticleId = 2,
                 Offer = offer,
-                Article = article2,
-                OfferId = offerId
+                Article = article2
             };
 
             article1.OfferArticles = new List<OfferArticleViewModel>();
@@ -231,13 +190,9 @@ namespace KoiosOffersTests
             offer.Articles.Add(article2);
 
             int addedOfferArticle1 = await offerSut.AddAsync(offer);
-            //int addedOfferArticle2 = await offerArticleSut.AddAsync(offerArticle2);
 
-            var newOfferSut1 = GetInMemoryForOffer("Test4");
-            var offerResult = await newOfferSut1.GetAsync(o => o.Id.Equals(offer.Id));
-
-            var newOfferSut2 = GetInMemoryForOffer("Test4");
-            var specifiedOffer = await newOfferSut2.GetAsync(o => o.Id.Equals(offer.Id));
+            var newOfferSut2 = GetInMemoryForOffer(databaseName);
+            var specifiedOffer = await newOfferSut2.GetByIdAsync(addedOfferArticle1);
 
             Assert.False(article1 == null);
             Assert.False(article2 == null);
@@ -245,91 +200,107 @@ namespace KoiosOffersTests
             Assert.False(offerArticle1 == null);
             Assert.False(offerArticle2 == null);
             Assert.True(addedOfferArticle1 > 0);
-            //Assert.True(addedOfferArticle2 > 0);
-            Assert.Equal(1600, specifiedOffer.First().TotalPrice);
+            Assert.Equal(1600, specifiedOffer.TotalPrice);
         }
 
         [Fact]
         public async Task WillUpdateTotalPriceOnUnitPriceUpdate()
         {
-            IOfferHandler<int> offerArticleSut = GetInMemoryForOffer("Test5");
-            IOfferHandler<int> offerSut = GetInMemoryForOffer("Test5");
-            IArticleHandler<int> articleSut = GetInMemoryForArticle("Test5");
+            var databaseName = Guid.NewGuid().ToString();
 
-            var articleId = 1;
-            var offerId = 1;
+            IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
+            IArticleHandler<int> articleSut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article1 = new ArticleViewModel()
             {
-                Id = articleId,
                 Name = "HDD1",
                 UnitPrice = 700
             };
 
             ArticleViewModel article2 = new ArticleViewModel()
             {
-                Id = articleId + 1,
                 Name = "HDD2",
                 UnitPrice = 900
             };
 
             OfferViewModel offer = new OfferViewModel()
             {
-                Id = 1,
                 Number = 5
             };
-
-            OfferArticleViewModel offerArticle1 = new OfferArticleViewModel()
-            {
-                Id = 7,
-                ArticleId = articleId,
-                OfferId = offerId
-            };
-
-            OfferArticleViewModel offerArticle2 = new OfferArticleViewModel()
-            {
-                Id = 8,
-                ArticleId = articleId + 1,
-                OfferId = offerId
-            };
-
-            article1.OfferArticles = new List<OfferArticleViewModel>();
-            article1.OfferArticles.Add(offerArticle1);
-
-            article2.OfferArticles = new List<OfferArticleViewModel>();
-            article2.OfferArticles.Add(offerArticle2);
 
             offer.Articles.Add(article1);
 
             offer.Articles.Add(article2);
-            //offerArticle2.Offer = ModelConverter.ToOffer(offer);
 
-            int addedOfferArticle1 = await offerSut.AddAsync(offer);
+            int addedOfferArticleId = await offerSut.AddAsync(offer);
 
-            var offerResult = await offerSut.GetAsync(o => o.Id.Equals(offer.Id));
+            var specifiedOffer = await offerSut.GetByIdAsync(addedOfferArticleId);
 
-            var specifiedOffer = await offerSut.GetByIdAsync(offer.Id);
-
+            article1.Id = addedOfferArticleId;
             article1.UnitPrice = 1000;
 
-            //offerArticle1.Article = ModelConverter.ToArticle(article1);
-            //offerArticle1.ArticleId = article1.Id;
+            await articleSut.UpdateAsync(article1);
 
-            var updated = await articleSut.UpdateAsync(article1);
+            var updatedOffers = GetInMemoryForOffer(databaseName);
 
-            var updatedOffers = GetInMemoryForOffer("Test5");
-
-            var updatedPrice = await updatedOffers.GetByIdAsync(offer.Id);
+            var updatedPrice = await updatedOffers.GetByIdAsync(addedOfferArticleId);
 
             Assert.False(article1 == null);
             Assert.False(article2 == null);
             Assert.False(offer == null);
-            Assert.False(offerArticle1 == null);
-            Assert.False(offerArticle2 == null);
-            //Assert.True(addedOfferArticle1 > 0);
-            //Assert.True(addedOfferArticle2 > 0);
             Assert.Equal(1600, specifiedOffer.TotalPrice);
             Assert.Equal(1900, updatedPrice.TotalPrice);
+        }
+
+        [Fact]
+        public async Task WillUpdateTotalPriceOnArticleDelete()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
+            IArticleHandler<int> articleSut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                //Id = articleId,
+                Name = "HDD1",
+                UnitPrice = 700
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                //Id = articleId + 1,
+                Name = "HDD2",
+                UnitPrice = 900
+            };
+
+            OfferViewModel offer = new OfferViewModel()
+            {
+                Number = 5
+            };
+
+            offer.Articles.Add(article1);
+
+            offer.Articles.Add(article2);
+
+            int addedOfferArticleId = await offerSut.AddAsync(offer);
+
+            var specifiedOffer = await offerSut.GetByIdAsync(addedOfferArticleId);
+
+            article1.Id = addedOfferArticleId;
+            article1.UnitPrice = 1000;
+
+            await articleSut.DeleteAsync(article1.Id);
+
+            var updatedOffers = GetInMemoryForOffer(databaseName);
+
+            var updatedPrice = await updatedOffers.GetByIdAsync(addedOfferArticleId);
+
+            Assert.False(article1 == null);
+            Assert.False(article2 == null);
+            Assert.False(offer == null);
+            Assert.Equal(1600, specifiedOffer.TotalPrice);
+            Assert.Equal(900, updatedPrice.TotalPrice);
         }
     }
 }

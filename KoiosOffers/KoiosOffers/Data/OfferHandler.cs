@@ -30,42 +30,41 @@ namespace KoiosOffers.Data
             }
 
             var converted = ModelConverter.ToOffer(viewModel);
-            int result = 0;
+            _dbContext.Offer.Add(converted);
 
             var articleIds = viewModel.Articles.Select(x => x.Id);
 
             var existingArticles = _dbContext.Article.Where(x => articleIds.Contains(x.Id));
 
-            foreach (var item in viewModel.Articles)
+            decimal totalPrice = 0;
+
+            if (viewModel.Articles != null || viewModel.Articles.Count > 0)
             {
-                var article = existingArticles.FirstOrDefault(x => x.Id == item.Id);
-
-                //_dbContext.Entry(article).State = EntityState.Added;
-
-                if (article == null)
+                foreach(var item in viewModel.Articles)
                 {
+                    var article = existingArticles.FirstOrDefault(x => x.Id.Equals(item.Id));
+
+                    if(article == null)
+                    {
+                        article = ModelConverter.ToArticle(item);
+                        _dbContext.Article.Add(article);
+                    }
+
+                    //var article = ModelConverter.ToArticle(item);
+                    totalPrice += item.UnitPrice;
                     
-
-                    article = ModelConverter.ToArticle(item);
-                    _dbContext.Article.Add(article);
-
-                    await _dbContext.SaveChangesAsync();
+                    _dbContext.OfferArticle.Add(new OfferArticle()
+                    {
+                        Offer = converted,
+                        Article = article
+                    });
                 }
-
-                var offerArticle = new OfferArticle()
-                {
-                    Offer = converted,
-                    Article = article
-                };
-
-                _dbContext.Add(offerArticle);
             }
 
+            converted.TotalPrice = totalPrice;
             _dbContext.Offer.Add(converted);
-
-            result = await _dbContext.SaveChangesAsync();
-
-            return result;
+            await _dbContext.SaveChangesAsync();
+            return converted.Id;
         }
 
         public async Task<int> DeleteAsync(TId id)
@@ -96,9 +95,10 @@ namespace KoiosOffers.Data
 
         public async Task<OfferViewModel> GetByIdAsync(int id)
         {
-            var offer = await _dbContext.Offer.FindAsync(id);
+            //.FindAsync(id)
+            var offer = await _dbContext.Offer.Where(x => x.Id.Equals(id)).ToListAsync();
 
-            return ModelConverter.ToOfferViewModel(offer);
+            return ModelConverter.ToOfferViewModel(offer.First());
         }
 
         public async Task<IEnumerable<OfferViewModel>> GetAsync(Func<OfferViewModel, bool> filter = null, int skip = 0, int take = 0, string term = "")

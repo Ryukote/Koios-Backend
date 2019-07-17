@@ -22,12 +22,6 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddAsync(ArticleViewModel viewModel)
         {
-            //var objectToFind = _dbContext.ChangeTracker.Entries()
-            //    .Where(a => a.State == EntityState.Added && a.Entity.GetType().Name.Equals("Article"))
-            //    .Select(a => a.Entity as Article);
-
-            //_dbContext.Article.Where(a => a.Id.Equals(viewModel.Id)).ToList().AddRange(objectToFind);
-
             foreach (var item in _dbContext.Article)
             {
                 if (item.Id == viewModel.Id)
@@ -94,10 +88,6 @@ namespace KoiosOffers.Data
                 {
                     return updated;
                 }
-                //var offerIdList = from offerArticles in _dbContext.OfferArticle
-                //                  where offerArticles.ArticleId == model.Id
-
-                //                  select offerArticles.OfferId;
 
                 foreach(var offerId in offerIdList)
                 {

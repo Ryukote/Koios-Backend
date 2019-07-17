@@ -1,5 +1,4 @@
 ﻿using KoiosOffers.Contracts;
-using System;
 using System.ComponentModel.DataAnnotations;
 
 namespace KoiosOffers.Models
@@ -8,8 +7,8 @@ namespace KoiosOffers.Models
     {
         public int Id { get; set; }
         public int ArticleId { get; set; }
-        public Article Article { get; set; }
+        public virtual Article Article { get; set; }
         public int OfferId { get; set; }
-        public Offer Offer { get; set; }
+        public virtual Offer Offer { get; set; }
     }
 }

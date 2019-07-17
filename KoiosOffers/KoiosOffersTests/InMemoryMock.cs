@@ -16,7 +16,6 @@ namespace KoiosOffersTests
             {
                 articles.Add(new ArticleViewModel()
                 {
-                    Id = i,
                     Name = "article" + i.ToString(),
                     UnitPrice = 10 * i
                 });
@@ -33,7 +32,6 @@ namespace KoiosOffersTests
             {
                 offers.Add(new OfferViewModel()
                 {
-                    Id = i,
                     CreatedAt = DateTime.UtcNow,
                     Number = i,
                     TotalPrice = i
@@ -47,6 +45,7 @@ namespace KoiosOffersTests
         {
             List<ArticleViewModel> articles = MockArticles();
             List<OfferViewModel> offers = MockOffers();
+            List<OfferArticleViewModel> offerArticles = new List<OfferArticleViewModel>();
 
             int counter = 0;
 
@@ -54,16 +53,13 @@ namespace KoiosOffersTests
             {
                 for (int i = 0; i < 5; i++)
                 {
-                    offer.Articles.Add(articles[counter]);
+                    //offer.Articles.Add(articles[counter]);
 
-                    //connectedOffers.Add(new OfferArticleViewModel()
-                    //{
-                    //    Id = articles[counter].Id,
-                    //    ArticleId = counter,
-                    //    OfferId = offer.Id,
-                    //    Article = articles[counter],
-                    //    Offer = offer
-                    //});
+                    offerArticles.Add(new OfferArticleViewModel()
+                    {
+                        Article = articles[counter],
+                        Offer = offer
+                    });
 
                     counter++;
                 }

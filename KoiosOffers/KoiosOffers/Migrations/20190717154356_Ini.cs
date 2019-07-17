@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace KoiosOffers.Migrations
 {
-    public partial class InitDb : Migration
+    public partial class Ini : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
@@ -14,7 +14,7 @@ namespace KoiosOffers.Migrations
                 {
                     Id = table.Column<int>(nullable: false)
                         .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
-                    Name = table.Column<string>(nullable: true),
+                    Name = table.Column<string>(nullable: false),
                     UnitPrice = table.Column<decimal>(nullable: false)
                 },
                 constraints: table =>
@@ -41,15 +41,17 @@ namespace KoiosOffers.Migrations
                 name: "OfferArticle",
                 columns: table => new
                 {
-                    Id = table.Column<int>(nullable: false),
+                    Id = table.Column<int>(nullable: false)
+                        .Annotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn),
+                    ArticleId = table.Column<int>(nullable: false),
                     OfferId = table.Column<int>(nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_OfferArticle", x => new { x.Id, x.OfferId });
+                    table.PrimaryKey("PK_OfferArticle", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_OfferArticle_Article_Id",
-                        column: x => x.Id,
+                        name: "FK_OfferArticle_Article_ArticleId",
+                        column: x => x.ArticleId,
                         principalTable: "Article",
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
@@ -60,6 +62,11 @@ namespace KoiosOffers.Migrations
                         principalColumn: "Id",
                         onDelete: ReferentialAction.Cascade);
                 });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_OfferArticle_ArticleId",
+                table: "OfferArticle",
+                column: "ArticleId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OfferArticle_OfferId",
