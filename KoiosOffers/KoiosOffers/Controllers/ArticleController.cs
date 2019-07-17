@@ -33,7 +33,7 @@ namespace KoiosOffers.Controllers
         [HttpGet]
         public async Task<IActionResult> Get([FromQuery]ArticleGetViewModel articleGetViewModel)
         {
-            var results = await _article.GetAsync(o => ((ArticleViewModel)o).Name.Equals(articleGetViewModel.Name), (int)articleGetViewModel.Skip, (int)articleGetViewModel.Take, "");
+            var results = await _article.GetAsync();
 
             if(results.ToList().Count > 0)
             {

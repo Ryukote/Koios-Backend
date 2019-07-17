@@ -124,7 +124,7 @@ namespace KoiosOffersTests
 
             var sut = GetInMemoryForOffer();
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => sut.DeleteAsync(id));
+            await Assert.ThrowsAsync<ArgumentException>(() => sut.DeleteAsync(id));
         }
 
         [Fact]
@@ -147,7 +147,7 @@ namespace KoiosOffersTests
             int deleted = await sut.DeleteAsync(id);
 
             Assert.False(offer == null);
-            Assert.True(deleted.Equals(0));
+            Assert.True(deleted.Equals(1));
         }
     }
 }

@@ -22,11 +22,11 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddAsync(ArticleViewModel viewModel)
         {
-            var objectToFind = _dbContext.ChangeTracker.Entries()
-                .Where(a => a.State == EntityState.Added && a.Entity.GetType().Name.Equals("Article"))
-                .Select(a => a.Entity as Article);
+            //var objectToFind = _dbContext.ChangeTracker.Entries()
+            //    .Where(a => a.State == EntityState.Added && a.Entity.GetType().Name.Equals("Article"))
+            //    .Select(a => a.Entity as Article);
 
-            _dbContext.Article.Where(a => a.Id.Equals(viewModel.Id)).ToList().AddRange(objectToFind);
+            //_dbContext.Article.Where(a => a.Id.Equals(viewModel.Id)).ToList().AddRange(objectToFind);
 
             foreach (var item in _dbContext.Article)
             {
@@ -80,28 +80,25 @@ namespace KoiosOffers.Data
 
         public async Task<int> UpdateAsync(ArticleViewModel model)
         {
-            _dbContext.Entry(ModelConverter.ToArticle(model)).State = EntityState.Detached; //Detached
+            var originalPrice = _dbContext.Article.Where(x => x.Id.Equals(model.Id)).Select(x => x.UnitPrice).FirstOrDefault();
 
-            var originalPrice = (from articles in await _dbContext.Article.AsNoTracking().ToListAsync()
-                                where articles.Id == model.Id
-
-                                select articles.UnitPrice).First();
-
-            //_dbContext.Set<Article>().AsNoTracking();
-            //_dbContext.Entry(ModelConverter.ToArticle(model)).State = EntityState.Modified; //Detached
             _dbContext.Article.Update(ModelConverter.ToArticle(model));
 
-            await _dbContext.SaveChangesAsync();
+            var updated = await _dbContext.SaveChangesAsync();
 
             if (originalPrice != model.UnitPrice)
             {
-                //get all OfferId that contains specified ArticleId
-                var offerIdList = from offerArticles in await _dbContext.OfferArticle.ToListAsync()
-                                  where offerArticles.ArticleId == model.Id
+                var offerIdList = _dbContext.OfferArticle.Where(x => x.ArticleId.Equals(model.Id)).Select(x => x.OfferId).ToList();
 
-                                  select offerArticles.OfferId;
+                if(offerIdList.Count.Equals(0))
+                {
+                    return updated;
+                }
+                //var offerIdList = from offerArticles in _dbContext.OfferArticle
+                //                  where offerArticles.ArticleId == model.Id
 
-                //foreach OfferId in offerIdList update TotalPrice
+                //                  select offerArticles.OfferId;
+
                 foreach(var offerId in offerIdList)
                 {
                     decimal unitPriceSum = 0;
@@ -110,7 +107,10 @@ namespace KoiosOffers.Data
 
                     foreach (var item in offerArticles)
                     {
-                        unitPriceSum += _dbContext.Article.Where(a => a.Id.Equals(item.ArticleId)).Select(a => a.UnitPrice).FirstOrDefault();
+                        unitPriceSum += _dbContext.Article
+                            .Where(a => a.Id.Equals(item.ArticleId))
+                            .Select(a => a.UnitPrice)
+                            .FirstOrDefault();
                     }
 
                     var offer = await _dbContext.Offer.Where(o => o.Id.Equals(offerId)).FirstOrDefaultAsync();
@@ -118,20 +118,10 @@ namespace KoiosOffers.Data
                     if (offer != null)
                     {
                         offer.TotalPrice = unitPriceSum;
-
-                         //Detached
                         _dbContext.Offer.Update(offer);
-                        
-                        //await _dbContext.SaveChangesAsync();
-                        
-                        //_dbContext.Set<Article>().Update(ModelConverter.ToArticle(model));
                     }
                 }
             }
-
-            //_dbContext.Entry(ModelConverter.ToArticle(model)).State = EntityState.Detached;
-            //_dbContext.Article.Update(ModelConverter.ToArticle(model));
-
 
             return await _dbContext.SaveChangesAsync();
         }

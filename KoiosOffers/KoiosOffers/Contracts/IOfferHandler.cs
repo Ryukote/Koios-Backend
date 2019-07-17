@@ -13,5 +13,7 @@ namespace KoiosOffers.Contracts
         Task<int> AddAsync(OfferViewModel model);
         Task<int> DeleteAsync(TId id);
         Task<int> UpdateAsync(OfferViewModel model);
+        Task<OfferViewModel> GetByIdAsync(int id);
+        Task<IEnumerable<OfferViewModel>> GetAllAsync();
     }
 }

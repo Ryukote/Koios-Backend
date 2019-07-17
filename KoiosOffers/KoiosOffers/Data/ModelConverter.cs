@@ -31,13 +31,16 @@ namespace KoiosOffers.Data
 
         public static OfferArticle ToOfferArticle(IViewModel viewModel)
         {
+            var article = ModelConverter.ToArticle(((OfferArticleViewModel)viewModel).Article);
+            var offer = ModelConverter.ToOffer(((OfferArticleViewModel)viewModel).Offer);
+
             return new OfferArticle()
             {
                 Id = ((OfferArticleViewModel)viewModel).Id,
                 ArticleId = ((OfferArticleViewModel)viewModel).ArticleId,
                 OfferId = ((OfferArticleViewModel)viewModel).OfferId,
-                Article = ((OfferArticleViewModel)viewModel).Article,
-                Offer = ((OfferArticleViewModel)viewModel).Offer
+                Article = article,
+                Offer = offer
             };
         }
 
@@ -72,13 +75,14 @@ namespace KoiosOffers.Data
 
         public static OfferViewModel ToOfferViewModel(Offer item)
         {
+            //item.OfferArticles.
             return new OfferViewModel()
             {
                 Id = item.Id,
                 CreatedAt = item.CreatedAt,
                 Number = item.Number,
                 TotalPrice = item.TotalPrice,
-                OfferArticles = item.OfferArticles
+                Articles = null
             };
         }
 

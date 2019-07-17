@@ -11,14 +11,15 @@ namespace KoiosOffersTests
 {
     public class ArticleHandlerTests
     {
+        private static string _databasename = Guid.NewGuid().ToString();
+
         private static IArticleHandler<int> GetInMemoryForArticle()
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
-            builder.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
+            builder.UseInMemoryDatabase(databaseName: "Test");
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
-            offerContext.Database.EnsureDeleted();
             offerContext.Database.EnsureCreated();
             return new ArticleHandler<int>(offerContext);
         }
@@ -72,21 +73,23 @@ namespace KoiosOffersTests
 
             ArticleViewModel article = new ArticleViewModel()
             {
-                Id = id,
+                Id = 10,
                 Name = "HDD1",
                 UnitPrice = 750
             };
 
             ArticleViewModel updatedArticle = new ArticleViewModel()
             {
-                Id = id,
+                Id = 10,
                 Name = "HDD2",
                 UnitPrice = 755
             };
 
             await sut.AddAsync(article);
 
-            int result = await sut.UpdateAsync(updatedArticle);
+            var newSut = GetInMemoryForArticle();
+
+            int result = await newSut.UpdateAsync(updatedArticle);
 
             Assert.False(article == null);
             Assert.False(updatedArticle == null);
