@@ -3,6 +3,7 @@ using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace KoiosOffers.Data
 {
@@ -75,15 +76,21 @@ namespace KoiosOffers.Data
 
         public static OfferViewModel ToOfferViewModel(Offer item)
         {
-            //item.OfferArticles.
-            return new OfferViewModel()
+
+            var offerViewModel = new OfferViewModel()
             {
                 Id = item.Id,
                 CreatedAt = item.CreatedAt,
                 Number = item.Number,
                 TotalPrice = item.TotalPrice,
-                Articles = null
             };
+            var articles = item.OfferArticles.Select(x => x.Article).ToList();
+            foreach (var article in articles)
+            {
+                offerViewModel.Articles.Add(ToArticleViewModel(article));
+            }
+
+            return offerViewModel;
         }
 
         public static IEnumerable<OfferArticleViewModel> ToOfferArticleViewModelEnumerable(IEnumerable<OfferArticle> offerArticleCollection)

@@ -246,17 +246,17 @@ namespace KoiosOffersTests
 
             offer.Articles.Add(article2);
 
-            int addedOfferArticleId = await offerSut.AddAsync(offer);
+            int offerId = await offerSut.AddAsync(offer);
 
-            var specifiedOffer = await offerSut.GetByIdAsync(addedOfferArticleId);
+            var specifiedOffer = await offerSut.GetByIdAsync(offerId);
 
-            article1.Id = addedOfferArticleId;
+            article1.Id = specifiedOffer.Articles.First().Id;
 
             await articleSut.DeleteAsync(article1.Id);
 
             var updatedOffers = GetInMemoryForOffer(databaseName);
 
-            var updatedPrice = await updatedOffers.GetByIdAsync(addedOfferArticleId);
+            var updatedPrice = await updatedOffers.GetByIdAsync(offerId);
 
             Assert.False(article1 == null);
             Assert.False(article2 == null);

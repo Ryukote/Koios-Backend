@@ -10,6 +10,10 @@ namespace KoiosOffers.Models
     /// </summary>
     public class Article : IViewModel
     {
+        public Article()
+        {
+            OfferArticles = new List<OfferArticle>();
+        }
         public int Id { get; set; }
         [Required]
         public string Name { get; set; }

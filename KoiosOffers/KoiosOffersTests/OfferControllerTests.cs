@@ -1,4 +1,5 @@
 ﻿using KoiosOffers.Controllers;
+using KoiosOffers.Data;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +32,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController offerController = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+
+            OfferController offerController = new OfferController(handler);
 
             OfferViewModel offer = new OfferViewModel()
             {
@@ -54,7 +57,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController offerController = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+
+            OfferController offerController = new OfferController(handler);
 
             OfferViewModel offer = new OfferViewModel();
 
@@ -70,7 +75,10 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController offerController = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+            var handler2 = new OfferHandler(SetupContext(databaseName));
+
+            OfferController offerController = new OfferController(handler);
 
             OfferViewModel offer = new OfferViewModel()
             {
@@ -85,7 +93,7 @@ namespace KoiosOffersTests
             offer.Id = offerAddValue;
             offer.Number = 7;
 
-            OfferController newOfferController = new OfferController(SetupContext(databaseName));
+            OfferController newOfferController = new OfferController(handler2);
 
             var offerUpdateResult = await newOfferController.Put(offer);
 
@@ -103,7 +111,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController offerController = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+
+            OfferController offerController = new OfferController(handler);
 
             OfferViewModel offer = new OfferViewModel()
             {
@@ -125,7 +135,10 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController offerController = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+            var handler2 = new OfferHandler(SetupContext(databaseName));
+
+            OfferController offerController = new OfferController(handler);
 
             OfferViewModel offer = new OfferViewModel()
             {
@@ -137,7 +150,7 @@ namespace KoiosOffersTests
             var offerAddResult = await offerController.Post(offer);
             var offerAddValue = Convert.ToInt32(((ObjectResult)offerAddResult).Value);
 
-            OfferController newOfferController = new OfferController(SetupContext(databaseName));
+            OfferController newOfferController = new OfferController(handler2);
 
             var offerDeleteResult = await newOfferController.Delete(offerAddValue);
 
@@ -154,7 +167,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController offerController = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+
+            OfferController offerController = new OfferController(handler);
 
             var offerDeleteResult = await offerController.Delete(100);
 
@@ -168,7 +183,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController controller = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+
+            OfferController controller = new OfferController(handler);
 
             OfferViewModel viewModel = new OfferViewModel()
             {
@@ -212,7 +229,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController controller = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+
+            OfferController controller = new OfferController(handler);
 
             OfferViewModel viewModel = new OfferViewModel()
             {
@@ -250,7 +269,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController controller = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+
+            OfferController controller = new OfferController(handler);
 
             OfferViewModel viewModel1 = new OfferViewModel()
             {
@@ -295,7 +316,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            OfferController controller = new OfferController(SetupContext(databaseName));
+            var handler = new OfferHandler(SetupContext(databaseName));
+
+            OfferController controller = new OfferController(handler);
 
             OfferViewModel viewModel1 = new OfferViewModel()
             {

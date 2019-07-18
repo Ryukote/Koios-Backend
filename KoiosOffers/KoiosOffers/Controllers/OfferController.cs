@@ -1,15 +1,13 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using KoiosOffers.Contracts;
+﻿using KoiosOffers.Contracts;
 using KoiosOffers.Data;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
+using System;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KoiosOffers.Controllers
 {
@@ -17,13 +15,11 @@ namespace KoiosOffers.Controllers
     [ApiController]
     public class OfferController : ControllerBase, IOfferController
     {
-        private OfferHandler _offer;
-        private OfferContext _offerContext;
+        private IOfferHandler _offer;
 
-        public OfferController(OfferContext offerContext)
+        public OfferController(IOfferHandler offer)
         {
-            _offerContext = offerContext;
-            _offer = new OfferHandler(_offerContext);
+            _offer = offer;
         }
 
         public OfferController()

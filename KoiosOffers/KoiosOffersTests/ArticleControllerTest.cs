@@ -1,4 +1,5 @@
 ﻿using KoiosOffers.Controllers;
+using KoiosOffers.Data;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.AspNetCore.Http;
@@ -31,7 +32,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel()
             {
@@ -53,7 +56,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel();
 
@@ -69,7 +74,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel()
             {
@@ -111,7 +118,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel()
             {
@@ -151,7 +160,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel()
             {
@@ -194,7 +205,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel()
             {
@@ -237,7 +250,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel()
             {
@@ -274,8 +289,11 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
-            ArticleController controller2 = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+            var handler2 = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
+            ArticleController controller2 = new ArticleController(handler2);
 
             ArticleViewModel viewModel = new ArticleViewModel()
             {
@@ -305,7 +323,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel()
             {
@@ -332,7 +352,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             var result = await controller.Delete(75);
 
@@ -348,7 +370,9 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            ArticleController controller = new ArticleController(SetupContext(databaseName));
+            var handler = new ArticleHandler(SetupContext(databaseName));
+
+            ArticleController controller = new ArticleController(handler);
 
             ArticleViewModel viewModel = new ArticleViewModel();
 

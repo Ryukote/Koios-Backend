@@ -1,9 +1,6 @@
 ﻿using KoiosOffers.Contracts;
-using KoiosOffers.Data;
-using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
 using System.Linq;
@@ -15,18 +12,11 @@ namespace KoiosOffers.Controllers
     [ApiController]
     public class ArticleController : ControllerBase, IArticleController
     {
-        private ArticleHandler _article;
-        private OfferContext _offerContext;
+        private IArticleHandler _article;
 
-        public ArticleController(OfferContext offerContext)
+        public ArticleController(IArticleHandler articleHandler)
         {
-            _offerContext = offerContext;
-            _article = new ArticleHandler(_offerContext);
-        }
-
-        public ArticleController()
-        {
-            _article = new ArticleHandler(new OfferContext(new DbContextOptions<OfferContext>()));
+            _article = articleHandler;
         }
 
         [HttpGet]
@@ -112,8 +102,7 @@ namespace KoiosOffers.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromBody]ArticleViewModel articleViewModel)
         {
-            ArticleHandler _newArticle = new ArticleHandler(_offerContext);
-            var result = await _newArticle.UpdateAsync(articleViewModel);
+            var result = await _article.UpdateAsync(articleViewModel);
 
             if (result > 0)
             {
@@ -130,6 +119,10 @@ namespace KoiosOffers.Controllers
             {
                 await _article.DeleteAsync(id);
                 return NoContent();
+            }
+            catch(ArgumentException)
+            {
+                return BadRequest();
             }
             catch (InvalidOperationException)
             {
