@@ -103,7 +103,16 @@ namespace KoiosOffers.Controllers
         [HttpPut]
         public async Task<IActionResult> Put([FromBody]OfferViewModel offerViewModel)
         {
-            var result = await _offer.UpdateAsync(offerViewModel);
+            var result = 0;
+
+            try
+            {
+                result = await _offer.UpdateAsync(offerViewModel);
+            }
+            catch(DbUpdateConcurrencyException)
+            {
+                return BadRequest("You can't update record that doesn't exist.");
+            }
 
             if (result > 0)
             {
@@ -116,7 +125,16 @@ namespace KoiosOffers.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete([FromQuery]int id)
         {
-            var result = await _offer.DeleteAsync(id);
+            var result = 0;
+
+            try
+            {
+                result = await _offer.DeleteAsync(id);
+            }
+            catch(ArgumentException)
+            {
+                return BadRequest("There is no offer you want to delete.");
+            }
 
             if (result > 0)
             {
