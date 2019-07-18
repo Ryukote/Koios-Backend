@@ -3,6 +3,8 @@ using KoiosOffers.Data;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Threading.Tasks;
 using Xunit;
@@ -119,7 +121,7 @@ namespace KoiosOffersTests
 
             var id = 75;
 
-            await Assert.ThrowsAsync<InvalidOperationException>(() => sut.DeleteAsync(id));
+            await Assert.ThrowsAsync<ArgumentException>(() => sut.DeleteAsync(id));
         }
 
         [Fact]

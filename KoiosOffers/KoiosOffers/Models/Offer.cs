@@ -8,6 +8,10 @@ namespace KoiosOffers.Models
 {
     public class Offer : IId<int>, IViewModel
     {
+        public Offer()
+        {
+            OfferArticles = new List<OfferArticle>();
+        }
         public int Id { get; set; }
         [Required]
         public int Number { get; set; }

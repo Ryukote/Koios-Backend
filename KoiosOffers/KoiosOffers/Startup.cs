@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 
 namespace KoiosOffers
 {
@@ -23,7 +24,10 @@ namespace KoiosOffers
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddDbContext<OfferContext>(options =>
-                options.UseSqlServer(Configuration.GetConnectionString("Default"))
+            {
+                options.UseLoggerFactory(GetLoggerFactory());
+                options.UseSqlServer(Configuration.GetConnectionString("Default"));
+            }
             );
         }
 
@@ -42,6 +46,17 @@ namespace KoiosOffers
 
             app.UseHttpsRedirection();
             app.UseMvc();
+        }
+
+        private ILoggerFactory GetLoggerFactory()
+        {
+            IServiceCollection serviceCollection = new ServiceCollection();
+            serviceCollection.AddLogging(builder =>
+                   builder.AddConsole()
+                          .AddFilter(DbLoggerCategory.Database.Command.Name,
+                                     LogLevel.Information));
+            return serviceCollection.BuildServiceProvider()
+                    .GetService<ILoggerFactory>();
         }
     }
 }

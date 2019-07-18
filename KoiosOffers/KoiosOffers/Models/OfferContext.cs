@@ -5,7 +5,7 @@ namespace KoiosOffers.Models
     public class OfferContext : DbContext
     {
         public OfferContext(DbContextOptions<OfferContext> options) : base(options)
-        {
+        {   
         }
 
         public DbSet<Article> Article { get; set; }

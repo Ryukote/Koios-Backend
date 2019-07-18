@@ -40,18 +40,18 @@ namespace KoiosOffers.Data
 
             if (viewModel.Articles != null || viewModel.Articles.Count > 0)
             {
-                foreach(var item in viewModel.Articles)
+                foreach (var item in viewModel.Articles)
                 {
                     var article = existingArticles.FirstOrDefault(x => x.Id.Equals(item.Id));
 
-                    if(article == null)
+                    if (article == null)
                     {
                         article = ModelConverter.ToArticle(item);
                         _dbContext.Article.Add(article);
                     }
 
                     totalPrice += item.UnitPrice;
-                    
+
                     _dbContext.OfferArticle.Add(new OfferArticle()
                     {
                         Offer = converted,
@@ -95,7 +95,11 @@ namespace KoiosOffers.Data
         public async Task<OfferViewModel> GetByIdAsync(int id)
         {
             //.FindAsync(id)
-            var offer = await _dbContext.Offer.Where(x => x.Id.Equals(id)).ToListAsync();
+            var offer = await _dbContext.Offer
+                .Include(x => x.OfferArticles)
+                    .ThenInclude(x => x.Article)
+                .Where(x => x.Id.Equals(id)).ToListAsync();
+
 
             return ModelConverter.ToOfferViewModel(offer.First());
         }
