@@ -10,8 +10,7 @@ using System.Threading.Tasks;
 
 namespace KoiosOffers.Data
 {
-    public class OfferHandler<TId> : IOfferHandler<TId>
-        where TId : struct
+    public class OfferHandler : IOfferHandler
     {
         private readonly OfferContext _dbContext;
 
@@ -66,7 +65,7 @@ namespace KoiosOffers.Data
             return converted.Id;
         }
 
-        public async Task<int> DeleteAsync(TId id)
+        public async Task<int> DeleteAsync(int id)
         {
             var result = _dbContext.Offer.FirstOrDefault(x => x.Id.Equals(id));
 
@@ -100,33 +99,45 @@ namespace KoiosOffers.Data
             return ModelConverter.ToOfferViewModel(offer.First());
         }
 
-        public async Task<IEnumerable<OfferViewModel>> GetAsync(Func<OfferViewModel, bool> filter = null, int skip = 0, int take = 0, string term = "")
+        public async Task<IEnumerable<OfferViewModel>> GetPaginatedAsync(int take = default, int skip = default)
         {
-            var query = _dbContext.Offer;
+            var query = await _dbContext.Offer
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
 
             var converted = ModelConverter.ToOfferViewModelEnumerable(query);
-
-            if (filter != null)
-            {
-                converted = converted.Where(filter);
-            }
-
-            if (skip > 0)
-            {
-                converted = converted.Skip(skip);
-            }
-
-            if (take > 0)
-            {
-                converted = converted.Take(take);
-            }
 
             return converted;
         }
 
+        //public async Task<IEnumerable<OfferViewModel>> GetAsync(Func<OfferViewModel, bool> filter = null, int skip = 0, int take = 0, string term = "")
+        //{
+        //    var query = _dbContext.Offer;
+
+        //    var converted = ModelConverter.ToOfferViewModelEnumerable(query);
+
+        //    if (filter != null)
+        //    {
+        //        converted = converted.Where(filter);
+        //    }
+
+        //    if (skip > 0)
+        //    {
+        //        converted = converted.Skip(skip);
+        //    }
+
+        //    if (take > 0)
+        //    {
+        //        converted = converted.Take(take);
+        //    }
+
+        //    return converted;
+        //}
+
         public async Task<int> UpdateAsync(OfferViewModel model)
         {
-            _dbContext.Set<Offer>().Update(ModelConverter.ToOffer(model));
+            _dbContext.Offer.Update(ModelConverter.ToOffer(model));
             return await _dbContext.SaveChangesAsync();
         }
     }

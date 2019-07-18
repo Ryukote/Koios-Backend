@@ -1,38 +1,40 @@
-﻿using KoiosOffers.Contracts;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
+using KoiosOffers.Contracts;
 using KoiosOffers.Data;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
-using System;
-using System.Linq;
-using System.Threading.Tasks;
 
 namespace KoiosOffers.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
-    public class ArticleController : ControllerBase, IArticleController
+    public class OfferController : ControllerBase, IOfferController
     {
-        private ArticleHandler _article;
+        private OfferHandler _offer;
         private OfferContext _offerContext;
 
-        public ArticleController(OfferContext offerContext)
+        public OfferController(OfferContext offerContext)
         {
             _offerContext = offerContext;
-            _article = new ArticleHandler(_offerContext);
+            _offer = new OfferHandler(_offerContext);
         }
 
-        public ArticleController()
+        public OfferController()
         {
-            _article = new ArticleHandler(new OfferContext(new DbContextOptions<OfferContext>()));
+            _offer = new OfferHandler(new OfferContext(new DbContextOptions<OfferContext>()));
         }
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
         {
-            var result = await _article.GetAllAsync();
+            var result = await _offer.GetAllAsync();
 
             if (result.Count().Equals(0))
             {
@@ -50,7 +52,7 @@ namespace KoiosOffers.Controllers
         [HttpGet]
         public async Task<IActionResult> GetById([FromQuery]int id)
         {
-            var result = await _article.GetByIdAsync(id);
+            var result = await _offer.GetByIdAsync(id);
 
             if (result == null)
             {
@@ -61,22 +63,9 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetIdByName([FromQuery]string name)
+        public async Task<IActionResult> GetPaginatedAsync([FromQuery]int skip, [FromQuery]int take)
         {
-            var result = await _article.GetIdByNameAsync(name);
-
-            if (result < 1)
-            {
-                return BadRequest();
-            }
-
-            return Ok(JsonConvert.SerializeObject(result));
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetPaginatedAsync([FromQuery]string name, [FromQuery]int skip, [FromQuery]int take)
-        {
-            var result = await _article.GetPaginatedAsync(name, take, skip);
+            var result = await _offer.GetPaginatedAsync(take, skip);
 
             if (result.Count().Equals(0))
             {
@@ -92,28 +81,29 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpPost]
-        public async Task<IActionResult> Post([FromBody]ArticleViewModel articleViewModel)
+        public async Task<IActionResult> Post([FromBody]OfferViewModel offerViewModel)
         {
-            if (articleViewModel.Name == null)
+            if (offerViewModel.Number < 1)
             {
                 return BadRequest();
             }
 
-            var result = await _article.AddAsync(articleViewModel);
+            offerViewModel.CreatedAt = DateTime.UtcNow;
+
+            var result = await _offer.AddAsync(offerViewModel);
 
             if (result > 0)
             {
-                return Created("", result);
+                return Created("", offerViewModel.Number);
             }
 
             return BadRequest();
         }
 
         [HttpPut]
-        public async Task<IActionResult> Put([FromBody]ArticleViewModel articleViewModel)
+        public async Task<IActionResult> Put([FromBody]OfferViewModel offerViewModel)
         {
-            ArticleHandler _newArticle = new ArticleHandler(_offerContext);
-            var result = await _newArticle.UpdateAsync(articleViewModel);
+            var result = await _offer.UpdateAsync(offerViewModel);
 
             if (result > 0)
             {
@@ -126,15 +116,14 @@ namespace KoiosOffers.Controllers
         [HttpDelete]
         public async Task<IActionResult> Delete([FromQuery]int id)
         {
-            try
+            var result = await _offer.DeleteAsync(id);
+
+            if (result > 0)
             {
-                await _article.DeleteAsync(id);
                 return NoContent();
             }
-            catch (InvalidOperationException)
-            {
-                return BadRequest();
-            }
+
+            return BadRequest();
         }
     }
 }

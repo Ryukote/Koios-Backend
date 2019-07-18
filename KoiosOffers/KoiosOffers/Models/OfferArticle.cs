@@ -3,7 +3,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KoiosOffers.Models
 {
-    public class OfferArticle : IId<int>, IViewModel
+    public class OfferArticle : IViewModel
     {
         public int Id { get; set; }
         public int ArticleId { get; set; }

@@ -6,13 +6,12 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KoiosOffers.ViewModels
 {
-    public class OfferViewModel : IId<int>, IViewModel
+    public class OfferViewModel : IViewModel
     {
         public OfferViewModel()
         {
             Articles = new List<ArticleViewModel>();
         }
-
 
         [Required]
         public int Id { get; set; }

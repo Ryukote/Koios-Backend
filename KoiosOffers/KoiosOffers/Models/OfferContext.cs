@@ -18,16 +18,6 @@ namespace KoiosOffers.Models
         /// <param name="modelBuilder"></param>
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<OfferArticle>();
-            //    //.HasKey(oa => new { oa.Id, oa.OfferId, oa.ArticleId });
-            //modelBuilder.Entity<OfferArticle>()
-            //    .HasOne(oa => oa.Offer)
-            //    .WithMany()
-            //    .HasForeignKey(oa => oa.OfferId);
-            //modelBuilder.Entity<OfferArticle>()
-            //    .HasOne(oa => oa.Article)
-            //    .WithMany()
-            //    .HasForeignKey(oa => oa.ArticleId);
         }
     }
 }

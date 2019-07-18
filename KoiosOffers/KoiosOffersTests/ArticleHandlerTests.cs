@@ -4,6 +4,7 @@ using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.EntityFrameworkCore;
 using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Xunit;
 
@@ -141,6 +142,276 @@ namespace KoiosOffersTests
 
             Assert.False(article == null);
             Assert.True(deleted > 0);
+        }
+
+        [Fact]
+        public async Task WillReturnFirstTwoRecords()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                Name = "HDD1",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                Name = "HDD2",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article3 = new ArticleViewModel()
+            {
+                Name = "HDD3",
+                UnitPrice = 750
+            };
+
+            await sut.AddAsync(article1);
+            await sut.AddAsync(article2);
+            await sut.AddAsync(article3);
+
+            var result = await sut.GetPaginatedAsync("HDD", 2, 0);
+
+            Assert.Equal(2, result.Count());
+        }
+
+        [Fact]
+        public async Task WillReturnLastTwoRecords()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                Name = "HDD1",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                Name = "HDD2",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article3 = new ArticleViewModel()
+            {
+                Name = "HDD3",
+                UnitPrice = 750
+            };
+
+            await sut.AddAsync(article1);
+            await sut.AddAsync(article2);
+            await sut.AddAsync(article3);
+
+            var result = await sut.GetPaginatedAsync("HDD", 2, 1);
+
+            Assert.Equal(2, result.Count());
+        }
+
+        [Fact]
+        public async Task OutofRangeRecords()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                Name = "HDD1",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                Name = "HDD2",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article3 = new ArticleViewModel()
+            {
+                Name = "HDD3",
+                UnitPrice = 750
+            };
+
+            await sut.AddAsync(article1);
+            await sut.AddAsync(article2);
+            await sut.AddAsync(article3);
+
+            var result = await sut.GetPaginatedAsync("HDD", 7, 10);
+
+            Assert.Empty(result);
+        }
+
+        [Fact]
+        public async Task WillReturnWithOutOfRangeRecords()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                Name = "HDD1",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                Name = "HDD2",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article3 = new ArticleViewModel()
+            {
+                Name = "HDD3",
+                UnitPrice = 750
+            };
+
+            await sut.AddAsync(article1);
+            await sut.AddAsync(article2);
+            await sut.AddAsync(article3);
+
+            var result = await sut.GetPaginatedAsync("HDD", 7, 0);
+
+            Assert.Equal(3, result.Count());
+        }
+
+        [Fact]
+        public async Task NameNullThrowsException()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                Name = "HDD1",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                Name = "HDD2",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article3 = new ArticleViewModel()
+            {
+                Name = "HDD3",
+                UnitPrice = 750
+            };
+
+            await sut.AddAsync(article1);
+            await sut.AddAsync(article2);
+            await sut.AddAsync(article3);
+
+            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.GetPaginatedAsync(null, 7, 0));
+        }
+
+        [Fact]
+        public async Task NameEmptyReturnsSelected()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                Name = "HDD1",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                Name = "HDD2",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article3 = new ArticleViewModel()
+            {
+                Name = "HDD3",
+                UnitPrice = 750
+            };
+
+            await sut.AddAsync(article1);
+            await sut.AddAsync(article2);
+            await sut.AddAsync(article3);
+
+            var result = await sut.GetPaginatedAsync("", 7, 0);
+
+            Assert.Equal(3, result.Count());
+        }
+
+        [Fact]
+        public async Task NameEmptyReturnsLastTwo()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                Name = "HDD1",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                Name = "HDD2",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article3 = new ArticleViewModel()
+            {
+                Name = "HDD3",
+                UnitPrice = 750
+            };
+
+            await sut.AddAsync(article1);
+            await sut.AddAsync(article2);
+            await sut.AddAsync(article3);
+
+            var result = await sut.GetPaginatedAsync("", 2, 1);
+
+            Assert.Equal(2, result.Count());
+        }
+
+        [Fact]
+        public async Task NameEmptyReturnsFirstTwo()
+        {
+            var databaseName = Guid.NewGuid().ToString();
+
+            var sut = GetInMemoryForArticle(databaseName);
+
+            ArticleViewModel article1 = new ArticleViewModel()
+            {
+                Name = "HDD1",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article2 = new ArticleViewModel()
+            {
+                Name = "HDD2",
+                UnitPrice = 750
+            };
+
+            ArticleViewModel article3 = new ArticleViewModel()
+            {
+                Name = "HDD3",
+                UnitPrice = 750
+            };
+
+            await sut.AddAsync(article1);
+            await sut.AddAsync(article2);
+            await sut.AddAsync(article3);
+
+            var result = await sut.GetPaginatedAsync("", 2, 0);
+
+            Assert.Equal(2, result.Count());
         }
     }
 }

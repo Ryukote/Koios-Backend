@@ -6,7 +6,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace KoiosOffers.Models
 {
-    public class Offer : IId<int>, IViewModel
+    public class Offer : IViewModel
     {
         public int Id { get; set; }
         [Required]

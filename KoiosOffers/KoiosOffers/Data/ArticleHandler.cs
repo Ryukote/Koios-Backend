@@ -116,7 +116,6 @@ namespace KoiosOffers.Data
 
         public async Task<ArticleViewModel> GetByIdAsync(int id)
         {
-            //.FindAsync(id)
             var articles = await _dbContext.Article.Where(x => x.Id.Equals(id)).ToListAsync();
 
             var wantedArticle = articles.First();
@@ -130,26 +129,25 @@ namespace KoiosOffers.Data
             return ModelConverter.ToArticleViewModel(wantedArticle);
         }
 
-        public async Task<IEnumerable<ArticleViewModel>> GetAsync(Expression<Func<ArticleViewModel, bool>> filter = null, int skip = 0, int take = 0, string term = "")
+        public async Task<int> GetIdByNameAsync(string name)
         {
-            var query = (IEnumerable<Article>)await _dbContext.Set<Article>().ToListAsync();
+            var query = await _dbContext.Article
+                .Where(x => x.Name.Equals(name))
+                .Select(x => x.Id)
+                .FirstAsync();
+
+            return query;
+        }
+
+        public async Task<IEnumerable<ArticleViewModel>> GetPaginatedAsync(string name = default, int take = default, int skip = default)
+        {
+            var query = await _dbContext.Article
+                .Where(x => x.Name.Contains(name))
+                .Skip(skip)
+                .Take(take)
+                .ToListAsync();
 
             var converted = ModelConverter.ToArticleViewModelEnumerable(query);
-
-            if (filter != null)
-            {
-                converted = converted.Where(filter.Compile());
-            }
-
-            if (skip > 0)
-            {
-                converted = converted.Skip(skip);
-            }
-
-            if (take > 0)
-            {
-                converted = converted.Take(take);
-            }
 
             return converted;
         }

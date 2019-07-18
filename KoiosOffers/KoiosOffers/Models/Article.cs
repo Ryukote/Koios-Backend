@@ -8,7 +8,7 @@ namespace KoiosOffers.Models
     /// <summary>
     /// Article model
     /// </summary>
-    public class Article : IId<int>, IViewModel
+    public class Article : IViewModel
     {
         public int Id { get; set; }
         [Required]

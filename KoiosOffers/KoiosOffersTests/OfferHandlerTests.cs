@@ -11,27 +11,26 @@ namespace KoiosOffersTests
 {
     public class OfferHandlerTests
     {
-        private static IOfferHandler<int> GetInMemoryForOffer()
+        private static IOfferHandler GetInMemoryForOffer(string databaseName)
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
-            builder.UseInMemoryDatabase(databaseName: Guid.NewGuid().ToString());
+            builder.UseInMemoryDatabase(databaseName: databaseName);
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
             offerContext.Database.EnsureCreated();
-            return new OfferHandler<int>(offerContext);
+            return new OfferHandler(offerContext);
         }
 
         [Fact]
         public async Task WillCreateOffer()
         {
-            var _id = 1;
+            var databaseName = Guid.NewGuid().ToString();
 
-            var sut = GetInMemoryForOffer();
+            var sut = GetInMemoryForOffer(databaseName);
 
             OfferViewModel offer = new OfferViewModel()
             {
-                Id = _id,
                 CreatedAt = DateTime.UtcNow,
                 Number = 1,
                 TotalPrice = 70
@@ -46,19 +45,22 @@ namespace KoiosOffersTests
         [Fact]
         public async Task OfferAlreadyExists()
         {
-            var _id = 700;
+            var databaseName = Guid.NewGuid().ToString();
 
-            var sut = GetInMemoryForOffer();
+            var sut = GetInMemoryForOffer(databaseName);
 
             OfferViewModel offer = new OfferViewModel()
             {
-                Id = _id,
                 CreatedAt = DateTime.UtcNow,
                 Number = 2,
                 TotalPrice = 70
             };
 
             await sut.AddAsync(offer);
+
+            var resultId = await sut.AddAsync(offer);
+
+            offer.Id = resultId;
 
             var result = await sut.AddAsync(offer);
 
@@ -69,13 +71,13 @@ namespace KoiosOffersTests
         [Fact]
         public async Task WillUpdateOffer()
         {
-            var id = 0;
+            var databaseName = Guid.NewGuid().ToString();
 
-            var sut = GetInMemoryForOffer();
+            var sut = GetInMemoryForOffer(databaseName);
 
             OfferViewModel offer = new OfferViewModel()
             {
-                Id = id,
+                //Id = id,
                 CreatedAt = DateTime.UtcNow,
                 Number = 2,
                 TotalPrice = 70
@@ -83,15 +85,19 @@ namespace KoiosOffersTests
 
             OfferViewModel updatedOffer = new OfferViewModel()
             {
-                Id = id,
+                //Id = id,
                 CreatedAt = DateTime.UtcNow,
                 Number = 2,
                 TotalPrice = 70
             };
 
-            await sut.AddAsync(offer);
+            var resultId = await sut.AddAsync(offer);
 
-            int result = await sut.UpdateAsync(updatedOffer);
+            updatedOffer.Id = resultId;
+
+            var newSut = GetInMemoryForOffer(databaseName);
+
+            int result = await newSut.UpdateAsync(updatedOffer);
 
             Assert.False(offer == null);
             Assert.False(updatedOffer == null);
@@ -102,8 +108,9 @@ namespace KoiosOffersTests
         public async Task UpdateOfferNonExistingId()
         {
             int id = 1000;
+            var databaseName = Guid.NewGuid().ToString();
 
-            var sut = GetInMemoryForOffer();
+            var sut = GetInMemoryForOffer(databaseName);
 
             OfferViewModel updatedOffer = new OfferViewModel()
             {
@@ -121,8 +128,9 @@ namespace KoiosOffersTests
         public async Task DeleteOfferNonExistingId()
         {
             var id = 555;
+            var databaseName = Guid.NewGuid().ToString();
 
-            var sut = GetInMemoryForOffer();
+            var sut = GetInMemoryForOffer(databaseName);
 
             await Assert.ThrowsAsync<ArgumentException>(() => sut.DeleteAsync(id));
         }
@@ -130,13 +138,14 @@ namespace KoiosOffersTests
         [Fact]
         public async Task WillDeleteOffer()
         {
-            var id = 1;
+            //var id = 1;
+            var databaseName = Guid.NewGuid().ToString();
 
-            var sut = GetInMemoryForOffer();
+            var sut = GetInMemoryForOffer(databaseName);
 
             OfferViewModel offer = new OfferViewModel()
             {
-                Id = id,
+                //Id = id,
                 CreatedAt = DateTime.UtcNow,
                 Number = 2,
                 TotalPrice = 70
@@ -144,7 +153,7 @@ namespace KoiosOffersTests
 
             int saved = await sut.AddAsync(offer);
 
-            int deleted = await sut.DeleteAsync(id);
+            int deleted = await sut.DeleteAsync(saved);
 
             Assert.False(offer == null);
             Assert.True(deleted.Equals(1));

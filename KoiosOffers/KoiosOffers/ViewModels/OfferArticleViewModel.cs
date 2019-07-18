@@ -5,7 +5,7 @@ using System.ComponentModel.DataAnnotations;
 
 namespace KoiosOffers.ViewModels
 {
-    public class OfferArticleViewModel : IId<int>, IViewModel
+    public class OfferArticleViewModel : IViewModel
     {
         public int Id { get; set; }
         public int ArticleId { get; set; }

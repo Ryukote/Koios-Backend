@@ -28,7 +28,7 @@ namespace KoiosOffersTests
             return new ArticleHandler(offerContext);
         }
 
-        private static IOfferHandler<int> GetInMemoryForOffer(string databaseName)
+        private static IOfferHandler GetInMemoryForOffer(string databaseName)
         {
             DbContextOptions<OfferContext> options;
             var builder = new DbContextOptionsBuilder<OfferContext>();
@@ -37,7 +37,7 @@ namespace KoiosOffersTests
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
             offerContext.Database.EnsureCreated();
-            return new OfferHandler<int>(offerContext);
+            return new OfferHandler(offerContext);
         }
 
         [Fact]
@@ -45,18 +45,16 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            IOfferHandler<int> sut = GetInMemoryForOffer(databaseName);
+            IOfferHandler sut = GetInMemoryForOffer(databaseName);
 
             ArticleViewModel article = new ArticleViewModel()
             {
-                //Id = articleId,
                 Name = "HDD1",
                 UnitPrice = 700
             };
 
             OfferViewModel offer = new OfferViewModel()
             {
-                //Id = offerId,
                 Number = 5,
                 TotalPrice = 1500
             };
@@ -113,7 +111,7 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
+            IOfferHandler offerSut = GetInMemoryForOffer(databaseName);
             IArticleHandler articleSut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article1 = new ArticleViewModel()
@@ -175,7 +173,7 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
+            IOfferHandler offerSut = GetInMemoryForOffer(databaseName);
             IArticleHandler articleSut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article1 = new ArticleViewModel()
@@ -224,7 +222,7 @@ namespace KoiosOffersTests
         {
             var databaseName = Guid.NewGuid().ToString();
 
-            IOfferHandler<int> offerSut = GetInMemoryForOffer(databaseName);
+            IOfferHandler offerSut = GetInMemoryForOffer(databaseName);
             IArticleHandler articleSut = GetInMemoryForArticle(databaseName);
 
             ArticleViewModel article1 = new ArticleViewModel()
