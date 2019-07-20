@@ -2,16 +2,20 @@
 using KoiosOffers.Data;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
+using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace KoiosOffers.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
+    //[EnableCors("AllowOrigin")]
     [ApiController]
     public class OfferController : ControllerBase, IOfferController
     {
@@ -22,10 +26,10 @@ namespace KoiosOffers.Controllers
             _offer = offer;
         }
 
-        public OfferController()
-        {
-            _offer = new OfferHandler(new OfferContext(new DbContextOptions<OfferContext>()));
-        }
+        //public OfferController()
+        //{
+        //    _offer = new OfferHandler(new OfferContext(new DbContextOptions<OfferContext>()));
+        //}
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -59,9 +63,10 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetPaginatedAsync([FromQuery]int skip, [FromQuery]int take)
+        [ActionName("GetPaginated")]
+        public async Task<IActionResult> GetPaginatedAsync([FromQuery]int offerNumber, [FromQuery]int skip, [FromQuery]int take)
         {
-            var result = await _offer.GetPaginatedAsync(take, skip);
+            var result = await _offer.GetPaginatedAsync(offerNumber, take, skip);
 
             if (result.Count().Equals(0))
             {
@@ -74,6 +79,42 @@ namespace KoiosOffers.Controllers
             }
 
             return Ok(JsonConvert.SerializeObject(result));
+        }
+
+        [HttpGet]
+        [ActionName("GetOfferByOfferNumber")]
+        public async Task<IActionResult> GetOfferByOfferNumberAsync(int offerNumber)
+        {
+            var result = await _offer.GetOfferByOfferNumberAsync(offerNumber);
+
+            if(result == null)
+            {
+                return BadRequest();
+            }
+
+            return Ok(JsonConvert.SerializeObject(result));
+        }
+
+        [HttpGet]
+        [ActionName("GetOfferArticles")]
+        public async Task<IActionResult> GetOfferArticlesByIdAsync([FromQuery]int offerId)
+        {
+            if(offerId > 0)
+            {
+                IEnumerable<ArticleViewModel> list = await _offer.GetOfferArticlesByIdAsync(offerId);
+
+                if(list.Count().Equals(0))
+                {
+                    return NoContent();
+                }
+
+                return Ok(JsonConvert.SerializeObject(list));
+            }
+
+            else
+            {
+                return BadRequest();
+            }
         }
 
         [HttpPost]
@@ -91,6 +132,25 @@ namespace KoiosOffers.Controllers
             if (result > 0)
             {
                 return Created("", offerViewModel.Number);
+            }
+
+            return BadRequest();
+        }
+
+        [HttpPost]
+        [ActionName("AddOfferArticle")]
+        public async Task<IActionResult> PostOfferArticle([FromBody]OfferArticleViewModel offerArticleViewModel)
+        {
+            if (offerArticleViewModel.ArticleId.Equals(0) || offerArticleViewModel.OfferId.Equals(0))
+            {
+                return BadRequest();
+            }
+
+            var result = await _offer.AddOfferArticleAsync(offerArticleViewModel.OfferId, offerArticleViewModel.ArticleId);
+
+            if (result > 0)
+            {
+                return Created("", result);
             }
 
             return BadRequest();
@@ -130,6 +190,29 @@ namespace KoiosOffers.Controllers
             catch(ArgumentException)
             {
                 return BadRequest("There is no offer you want to delete.");
+            }
+
+            if (result > 0)
+            {
+                return NoContent();
+            }
+
+            return BadRequest();
+        }
+
+        [HttpDelete]
+        [ActionName("DeleteOfferArticle")]
+        public async Task<IActionResult> DeleteOfferArticle([FromQuery]int offerId, [FromQuery]int articleId)
+        {
+            var result = 0;
+
+            try
+            {
+                result = await _offer.DeleteOfferArticle(offerId, articleId);
+            }
+            catch (ArgumentException)
+            {
+                return BadRequest("There is no article under that offer you want to delete.");
             }
 
             if (result > 0)

@@ -1,5 +1,6 @@
 ﻿using KoiosOffers.Contracts;
 using KoiosOffers.ViewModels;
+using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 using System;
@@ -8,7 +9,8 @@ using System.Threading.Tasks;
 
 namespace KoiosOffers.Controllers
 {
-    [Route("api/[controller]")]
+    [Route("api/[controller]/[action]")]
+    [EnableCors("AllowOrigin")]
     [ApiController]
     public class ArticleController : ControllerBase, IArticleController
     {
@@ -64,6 +66,7 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpGet]
+        [ActionName("Paginated")]
         public async Task<IActionResult> GetPaginatedAsync([FromQuery]string name, [FromQuery]int skip, [FromQuery]int take)
         {
             var result = await _article.GetPaginatedAsync(name, take, skip);
@@ -82,6 +85,7 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpPost]
+        [ActionName("Add")]
         public async Task<IActionResult> Post([FromBody]ArticleViewModel articleViewModel)
         {
             if (articleViewModel.Name == null)
@@ -100,6 +104,7 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpPut]
+        [ActionName("Update")]
         public async Task<IActionResult> Put([FromBody]ArticleViewModel articleViewModel)
         {
             var result = await _article.UpdateAsync(articleViewModel);
@@ -113,6 +118,7 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpDelete]
+        [ActionName("Delete")]
         public async Task<IActionResult> Delete([FromQuery]int id)
         {
             try

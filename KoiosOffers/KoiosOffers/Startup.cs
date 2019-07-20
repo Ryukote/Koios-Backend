@@ -1,4 +1,6 @@
-﻿using KoiosOffers.Models;
+﻿using KoiosOffers.Contracts;
+using KoiosOffers.Data;
+using KoiosOffers.Models;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
@@ -18,17 +20,48 @@ namespace KoiosOffers
 
         public IConfiguration Configuration { get; }
 
+        private static IArticleHandler GetInMemoryForArticle(string databaseName)
+        {
+            DbContextOptions<OfferContext> options;
+            var builder = new DbContextOptionsBuilder<OfferContext>();
+            builder.UseInMemoryDatabase(databaseName: databaseName);
+            options = builder.Options;
+            OfferContext offerContext = new OfferContext(options);
+            offerContext.Database.EnsureCreated();
+            return new ArticleHandler(offerContext);
+        }
+
+        private static IOfferHandler GetInMemoryForOffer(string databaseName)
+        {
+            DbContextOptions<OfferContext> options;
+            var builder = new DbContextOptionsBuilder<OfferContext>();
+            builder.UseInMemoryDatabase(databaseName: databaseName);
+            options = builder.Options;
+            OfferContext offerContext = new OfferContext(options);
+            offerContext.Database.EnsureCreated();
+            return new OfferHandler(offerContext);
+        }
+
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddCors();
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddDbContext<OfferContext>(options =>
             {
                 options.UseLoggerFactory(GetLoggerFactory());
                 options.UseSqlServer(Configuration.GetConnectionString("Default"));
-            }
-            );
+
+                //#if (DEBUG)
+                //options.UseInMemoryDatabase(databaseName: "TestDb");
+                //#else
+                //options.UseSqlServer(Configuration.GetConnectionString("Default"));
+                //#endif
+            });
+
+            services.AddTransient<IArticleHandler, ArticleHandler>();
+            services.AddTransient<IOfferHandler, OfferHandler>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -44,7 +77,10 @@ namespace KoiosOffers
                 app.UseHsts();
             }
 
-            app.UseHttpsRedirection();
+            app.UseCors(
+                options => options.AllowAnyMethod().AllowAnyOrigin()
+            );
+            //app.UseHttpsRedirection();
             app.UseMvc();
         }
 

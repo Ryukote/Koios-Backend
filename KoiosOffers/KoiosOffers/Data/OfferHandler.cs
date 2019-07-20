@@ -65,6 +65,20 @@ namespace KoiosOffers.Data
             return converted.Id;
         }
 
+        public async Task<int> AddOfferArticleAsync(int offerId, int articleId)
+        {
+            var oaExisting = await _dbContext.OfferArticle.FirstAsync(x => x.OfferId.Equals(offerId) && x.ArticleId.Equals(articleId));
+
+            if(oaExisting == null)
+            {
+                return 0;
+            }
+
+            _dbContext.OfferArticle.Add(new OfferArticle() { OfferId = offerId, ArticleId = articleId });
+            await _dbContext.SaveChangesAsync();
+            return 1;
+        }
+
         public async Task<int> DeleteAsync(int id)
         {
             var result = _dbContext.Offer.FirstOrDefault(x => x.Id.Equals(id));
@@ -77,6 +91,23 @@ namespace KoiosOffers.Data
             else
             {
                 throw new ArgumentException("Provided id is not valid.", nameof(id));
+            }
+
+            return await _dbContext.SaveChangesAsync();
+        }
+
+        public async Task<int> DeleteOfferArticle(int offerId, int articleId)
+        {
+            var result = _dbContext.OfferArticle.FirstOrDefault(x => x.OfferId.Equals(offerId) && x.ArticleId.Equals(articleId));
+
+            if (result != null)
+            {
+                _dbContext.OfferArticle.Remove(result);
+            }
+
+            else
+            {
+                throw new ArgumentException("Either provided offer id or article id is not valid.", nameof(offerId) + " " + nameof(articleId));
             }
 
             return await _dbContext.SaveChangesAsync();
@@ -102,9 +133,40 @@ namespace KoiosOffers.Data
             return ModelConverter.ToOfferViewModel(offer);
         }
 
-        public async Task<IEnumerable<OfferViewModel>> GetPaginatedAsync(int take = default, int skip = default)
+        public async Task<OfferViewModel> GetOfferByOfferNumberAsync(int offerNumber)
+        {
+            var offer = await _dbContext.Offer
+                .FirstOrDefaultAsync(x => x.Number.Equals(offerNumber));
+
+
+            return ModelConverter.ToOfferViewModel(offer);
+        }
+
+        public async Task<IEnumerable<ArticleViewModel>> GetOfferArticlesByIdAsync(int offerId)
+        {
+            List<Article> articles = new List<Article>();
+
+            var offers = await _dbContext.OfferArticle
+                .Where(x => x.OfferId.Equals(offerId)).ToListAsync();
+
+            foreach(var item in offers)
+            {
+                var article = await _dbContext.Article
+                    .FirstAsync(x => x.Id.Equals(item.ArticleId));
+
+                if(article != null)
+                {
+                    articles.Add(article);
+                }
+            }
+
+            return ModelConverter.ToArticleViewModelEnumerable(articles.AsEnumerable());
+        }
+
+        public async Task<IEnumerable<OfferViewModel>> GetPaginatedAsync(int offerNumber, int take = default, int skip = default)
         {
             var query = await _dbContext.Offer
+                .Where(x => x.Number.ToString().Contains(offerNumber.ToString()))
                 .Skip(skip)
                 .Take(take)
                 .ToListAsync();

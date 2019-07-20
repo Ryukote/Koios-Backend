@@ -16,7 +16,10 @@ namespace KoiosOffers.Contracts
         Task<IActionResult> GetById([FromQuery]int id);
 
         [HttpGet]
-        Task<IActionResult> GetPaginatedAsync([FromQuery]int skip, [FromQuery]int take);
+        Task<IActionResult> GetPaginatedAsync([FromQuery]int offerNumber, [FromQuery]int skip, [FromQuery]int take);
+
+        [HttpGet]
+        Task<IActionResult> GetOfferByOfferNumberAsync(int offerNumber);
 
         [HttpPost]
         Task<IActionResult> Post([FromBody]OfferViewModel offerViewModel);
