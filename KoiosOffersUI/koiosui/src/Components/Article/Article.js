@@ -1,36 +1,14 @@
-import * as ReactStrap from 'reactstrap';
-import Autosuggest from 'react-autosuggest';
 import axios from 'axios';
-import './Article.css';
-
-const Article = () => {
-    // <div className="article">
-    //     <div className="articleName">
-
-    //     </div>
-
-    //     <div className="articlePrice">
-
-    //     </div>
-
-    //     <div className="selectArticle">
-
-    //     </div>
-    // </div>
-};
 
 export const saveArticle = async (article) => {
-    let result = {
-        data: "",
-        status: 0
-    }
     await axios.post('http://localhost:59189/api/Article/Add', {
         "name": article.name,
         "unitPrice": article.unitPrice
     }).then(response => {
         return response.data;
     }).catch(error => {
-        return -1;
+        alert("Something went wrong");
+        throw error;
     });
 }
 
@@ -53,16 +31,13 @@ export const deleteArticle = async (id) => {
     await axios.delete('http://localhost:59189/api/Article/Delete?id=' + id)
         .then(response => {
             return {status: response.status};
-        }).catch(error => {
+        }).catch(() => {
+            alert("Something went wrong");
             return {status: 400};
         });
 }
 
 export const updateArticle = async (article) => {
-    let result;
-    console.log("Zadani id: " + article.id);
-    console.log("Zadani name: " + article.name);
-    console.log("Zadani unitPrice: " + article.unitPrice);
     await axios.put('http://localhost:59189/api/Article/Update', {
         "id": article.id,
         "name": article.name,
@@ -71,14 +46,12 @@ export const updateArticle = async (article) => {
         return {
             status: response.status
         }
-    }).catch(error => {
-        console.log("Nekakav error: " + error);
-            return {
-                status: 400
-            }
+    }).catch(() => {
+        alert("Something went wrong");
+        return {
+            status: 400
+        }
     });
-
-    return result;
 }
 
 export const getAllArticles = async (article) => {
@@ -88,16 +61,14 @@ export const getAllArticles = async (article) => {
         "name": article.name,
         "unitPrice": article.unitPrice
     }).then(response => {
-            return {
-                status: response.status
-            }
-    }).catch(error => {
-            return {
-                status: 400
-            }
+        return {
+            status: response.status
+        }
+    }).catch(() => {
+        return {
+            status: 400
+        }
     });
-
-    return result;
 }
 
 export default Article;

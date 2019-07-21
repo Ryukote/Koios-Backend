@@ -50,6 +50,7 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpGet]
+        [ActionName("GetById")]
         public async Task<IActionResult> GetById([FromQuery]int id)
         {
             var result = await _offer.GetByIdAsync(id);
@@ -118,6 +119,7 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpPost]
+        [ActionName("Create")]
         public async Task<IActionResult> Post([FromBody]OfferViewModel offerViewModel)
         {
             if (offerViewModel.Number < 1)
