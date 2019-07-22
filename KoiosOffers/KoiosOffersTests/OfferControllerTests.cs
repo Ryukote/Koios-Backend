@@ -211,7 +211,7 @@ namespace KoiosOffersTests
 
             var json = ((ObjectResult)allItems).Value;
 
-            var convertedJson = JsonConvert.DeserializeObject<ICollection<object>>(json.ToString());
+            ICollection<OfferViewModel> offerCollection = JsonConvert.DeserializeObject<ICollection<OfferViewModel>>(json.ToString());
 
             Assert.NotNull(result);
             Assert.NotNull(result2);
@@ -221,7 +221,7 @@ namespace KoiosOffersTests
             Assert.Equal(StatusCodes.Status201Created, statusCode);
             Assert.Equal(StatusCodes.Status201Created, statusCode2);
             Assert.Equal(StatusCodes.Status200OK, statusCodeGetAll);
-            Assert.Equal(2, convertedJson.Count);
+            Assert.Equal(2, offerCollection.Count);
         }
 
         [Fact]
