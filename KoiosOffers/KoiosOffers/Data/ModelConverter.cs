@@ -1,7 +1,6 @@
 ﻿using KoiosOffers.Contracts;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
-using System;
 using System.Collections.Generic;
 using System.Linq;
 

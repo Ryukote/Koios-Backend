@@ -1,12 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Linq.Expressions;
-using System.Threading.Tasks;
-using KoiosOffers.Contracts;
+﻿using KoiosOffers.Contracts;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.EntityFrameworkCore;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Threading.Tasks;
 
 namespace KoiosOffers.Data
 {
@@ -93,10 +92,11 @@ namespace KoiosOffers.Data
         public async Task<IEnumerable<ArticleViewModel>> GetPaginatedAsync(string name = default, int take = default, int skip = default)
         {
             var query = await _dbContext.Article
-                .Where(x => x.Name.Contains(name))
+                .ToAsyncEnumerable()
+                .Where(x => EF.Functions.Like(x.Name, $"%{name}%"))
                 .Skip(skip)
                 .Take(take)
-                .ToListAsync();
+                .ToList();
 
             var converted = ModelConverter.ToArticleViewModelEnumerable(query);
 

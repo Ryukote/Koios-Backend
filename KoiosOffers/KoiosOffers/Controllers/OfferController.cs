@@ -1,21 +1,18 @@
 ﻿using KoiosOffers.Contracts;
-using KoiosOffers.Data;
-using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.AspNetCore.Cors;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using System;
-using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace KoiosOffers.Controllers
 {
+    [EnableCors("CorsPolicy")]
     [Route("api/[controller]/[action]")]
-    //[EnableCors("AllowOrigin")]
     [ApiController]
     public class OfferController : ControllerBase, IOfferController
     {
@@ -25,11 +22,6 @@ namespace KoiosOffers.Controllers
         {
             _offer = offer;
         }
-
-        //public OfferController()
-        //{
-        //    _offer = new OfferHandler(new OfferContext(new DbContextOptions<OfferContext>()));
-        //}
 
         [HttpGet]
         public async Task<IActionResult> GetAll()
@@ -46,6 +38,7 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
+            //bilo je samo Ok(result)
             return Ok(JsonConvert.SerializeObject(result));
         }
 
@@ -60,6 +53,7 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
+            //bilo je samo Ok(result)
             return Ok(JsonConvert.SerializeObject(result));
         }
 
@@ -79,7 +73,7 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
-            return Ok(JsonConvert.SerializeObject(result));
+            return Ok(result);
         }
 
         [HttpGet]
@@ -93,7 +87,7 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
-            return Ok(JsonConvert.SerializeObject(result));
+            return Ok(result);
         }
 
         [HttpGet]
@@ -109,7 +103,7 @@ namespace KoiosOffers.Controllers
                     return NoContent();
                 }
 
-                return Ok(JsonConvert.SerializeObject(list));
+                return Ok(list);
             }
 
             else
@@ -133,7 +127,7 @@ namespace KoiosOffers.Controllers
 
             if (result > 0)
             {
-                return Created("", offerViewModel.Number);
+                return Created("", result);
             }
 
             return BadRequest();

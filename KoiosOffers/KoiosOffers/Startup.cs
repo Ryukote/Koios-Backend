@@ -22,7 +22,13 @@ namespace KoiosOffers
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddCors();
+            services.AddCors(options =>
+            {
+                options.AddPolicy("CorsPolicy",
+                    builder => builder.AllowAnyOrigin()
+                        .AllowAnyMethod()
+                        .AllowAnyHeader());
+            });
             services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
             services.AddDbContext<OfferContext>(options =>
@@ -30,11 +36,7 @@ namespace KoiosOffers
                 options.UseLoggerFactory(GetLoggerFactory());
                 options.UseSqlServer(Configuration.GetConnectionString("Default"));
 
-                //#if (DEBUG)
                 //options.UseInMemoryDatabase(databaseName: "TestDb");
-                //#else
-                //options.UseSqlServer(Configuration.GetConnectionString("Default"));
-                //#endif
             });
 
             services.AddTransient<IArticleHandler, ArticleHandler>();
@@ -54,9 +56,7 @@ namespace KoiosOffers
                 app.UseHsts();
             }
 
-            app.UseCors(
-                options => options.AllowAnyMethod().AllowAnyOrigin().AllowAnyHeader()
-            );
+            app.UseCors("CorsPolicy");
             //app.UseHttpsRedirection();
             app.UseMvc();
         }

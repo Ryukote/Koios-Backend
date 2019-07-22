@@ -4,7 +4,7 @@ import axios from 'axios';
 import './OfferHeader.css';
 import lodash from 'lodash';
 import { OfferContext } from '../OfferContext/OfferContext';
-import Async from 'react-select/async';
+import AsyncSelect from 'react-select/async';
 
 let tmpId = 0;
 let newOfferNumber = 0;
@@ -22,6 +22,7 @@ export default class OfferHeader extends React.Component {
              visible: true,
              modalIsOpen: false,
              modalForNewArticleIsOpen: false,
+             modalForUpdateArticleIsOpen: false,
              offerId: null,
              suggestionText: '',
              newOfferNumber: '',
@@ -29,26 +30,36 @@ export default class OfferHeader extends React.Component {
              offerCreatedAt: "",
              value: '',
              suggestions: [],
-             selectedOption: {}
+             selectedOption: {},
+             articleIdToOperate: null,
+             selectedArticleName: '',
+             selectedArticePrice: null
         }
 
         this.onTextChange = this.onTextChange.bind(this);
         this.onSelect = this.onSelect.bind(this);
         this.onSuggestionChange = this.onSuggestionChange.bind(this);
+        this.onUpdateArticleNameChange = this.onUpdateArticleNameChange.bind(this);
+        this.onUpdateArticlePriceChange = this.onUpdateArticlePriceChange.bind(this);
         this.toggle = this.toggle.bind(this);
         this.onAddOfferChange = this.onAddOfferChange.bind(this);
         this.toggleNewArticle = this.toggleNewArticle.bind(this);
+        this.toggleUpdateArticle = this.toggleUpdateArticle.bind(this);
+        this.getData = this.getData.bind(this);
+        this.articleSelected = this.articleSelected.bind(this);
+        this.updateArticle = this.updateArticle.bind(this);
+        this.getArticleById = this.getArticleById.bind(this);
     }
 
-    removeFromOffer = ({...article}, {...key}) => {
+    removeFromOffer = ({...article}) => {
         let newValues = lodash.remove(...this.state.suggestions, value => 
             value.id === article.id
         )
 
         this.setState(
-            testArticleList => {
-                testArticleList = newValues
-                return testArticleList
+            suggestions => {
+                suggestions = newValues
+                return suggestions
             }
         )
     }
@@ -60,7 +71,9 @@ export default class OfferHeader extends React.Component {
     };
 
     onAddOfferChange = (e) => {
-        newOfferNumber = e.target.value        
+        this.setState({
+            newOfferNumber: e.target.value 
+        })       
     };
 
     onNewArticleNameChange = (e) => {
@@ -71,15 +84,70 @@ export default class OfferHeader extends React.Component {
         newArticlePrice = e.target.value        
     };
 
-    getData(searchText) {
+    onUpdateArticleNameChange = (e) => {
+        this.setState({
+            selectedArticleName: e.target.value
+        })
+    }
+
+    onUpdateArticlePriceChange = (e) => {
+        this.setState({
+            selectedArticePrice: e.target.value
+        })
+    }
+
+    getArticleById = async () => {
+        if(this.state.articleIdToOperate != null) {
+            let url = "https://localhost:44315/api/Article/GetById?id="
+            + this.state.articleIdToOperate;
+
+            return await axios.get(url).then(response => {
+                let result = response.data;
+
+                this.setState({
+                    selectedArticleName: result.name
+                })
+
+                this.setState({
+                    selectedArticePrice: result.unitPrice
+                })
+
+                let articles = {
+                    id: this.state.articleIdToOperate,
+                    name: this.state.selectedArticleName,
+                    unitPrice: this.state.selectedArticePrice
+                }
+
+                return articles;
+            }).catch(() => alert("You didn't select an article"));
+        }
+    }
+
+    async getData(searchText) {
+        let result;
         let url = "https://localhost:44315/api/Article/Paginated?name="
             + searchText
             + "&skip=0&take=10";
 
-        if(searchText != null) {
-            fetch(url)
-                .then(response => {
-                    return response.data;
+        let dropdownResult = [];
+
+        if(searchText !== '') {
+            return await axios.get(url)
+                .then(response =>{
+                    result = response.data;
+
+                    for(let [key] in Object.entries(result)) {
+                        dropdownResult.push({
+                            label: result[key].Name,
+                            value: result[key].Id
+                        })
+                    }
+
+                    this.setState({
+                        suggestions: dropdownResult
+                    });
+
+                    return this.state.suggestions;
                 }).catch(error => {
                     throw error;
                 });
@@ -105,7 +173,7 @@ export default class OfferHeader extends React.Component {
     renderItem(item, isHighlighted){
         return (
             <div style={{ background: isHighlighted ? 'lightgray' : 'white' }}>
-                {item.Name}
+                {item.name}
             </div>   
         ); 
     }
@@ -126,25 +194,36 @@ export default class OfferHeader extends React.Component {
         })
     }
 
+    toggleUpdateArticle() {
+        this.getArticleById();
+
+        this.setState({
+            modalForUpdateArticleIsOpen: ! this.state.modalForUpdateArticleIsOpen
+        })
+    }
+
     addNewOffer = async (value) => {
         let url = "http://localhost:59189/api/Offer/Create";
-        var today = new Date();
         await axios.post(url, {
-            data: {
-                "Number": newOfferNumber,
-                "DateTime": today.getFullYear(),
-                "TotalPrice": 0
-            }
+                "number": this.state.newOfferNumber,
+                "totalPrice": 0
         }).then(result => {
+            alert("Offer successfully added");
+            this.toggle();
+            this.setState({
+                offerId: result.data
+            })
             value.getOffer(result.data)
         }).catch(error => {
+            alert("Offer already exist or you didn't enter valid data");
+            this.toggle();
             throw error;
         })
     }
 
     deleteArticle = async () => {
         let url = "http://localhost:59189/api/Article/Delete?id="
-        + tmpArticleId;
+        + this.state.articleIdToOperate;
 
         await axios.Delete(url).then(() => {
             alert("Article deleted");
@@ -157,14 +236,22 @@ export default class OfferHeader extends React.Component {
     updateArticle = async () => {
         let url = "http://localhost:59189/api/Article/Update";
 
-        await axios.Put(url, {
-            "Id": tmpArticleId,
-            "Name": newArticleName,
-            "UnitPrice": newArticlePrice
+        await axios.put(url, {
+            "Id": this.state.articleIdToOperate,
+            "Name": this.state.selectedArticleName,
+            "UnitPrice": this.state.selectedArticePrice
         }).then(() => {
             alert("Article updated");
+            this.toggleUpdateArticle();
+            // this.setState({
+            //     toggleUpdateArticle: false
+            // })
         }).catch(error => {
             alert("Something went wrong");
+            this.toggleUpdateArticle();
+            // this.setState({
+            //     toggleUpdateArticle: false
+            // })
             throw error;
         });
     }
@@ -176,27 +263,48 @@ export default class OfferHeader extends React.Component {
             "Name": newArticleName,
             "UnitPrice": newArticlePrice
         }).then(() => {
-
+            alert("Article successfully added");
         }).catch(error => {
             alert("Something went wrong");
             throw error;
         });
 
-        this.setState({
-            toggleNewArticle: ! this.state.toggleNewArticle
-        });
+        this.toggleNewArticle();
     }
 
     deleteArticle = async () => {
         let url = "http://localhost:59189/api/Article/Delete?id="
-            + tmpArticleId;
+            + this.state.articleIdToOperate;
 
         await axios.delete(url).then(() => {
-            alert("Article deleted");
+            alert("Article successfully deleted");
         }).catch(error => {
             alert("Something went wrong");
             throw error;
         });
+    }
+
+    getOptionValue = option => {
+        return option;
+    };
+
+    loadOptions = (inputValue, callback) => {
+        setTimeout(() => {
+          callback(this.getData(inputValue));
+        }, 1000);
+    };
+
+    articleSelected = (data) => {
+        this.setState({
+            articleIdToOperate: data.value
+        });
+    }
+
+    createdDateContains = (value) => {
+        console.log("Value: " + value);
+        let tmpValue = value;
+
+        return tmpValue.includes("T") ? true : false;
     }
 
     render() {
@@ -212,8 +320,8 @@ export default class OfferHeader extends React.Component {
                                             <Input onChange={this.onTextChange} placeholder="enter offer id"/>
                                         </div>
         
-                                        <div id="newOffer" className="headerTopElement buttonSpace">
-                                            <Button onClick={() => value.getOffer(offerId, {...value})} className="buttonStyle">Search offer</Button>
+                                        <div id="getOffer" className="headerTopElement buttonSpace">
+                                            <Button onClick={() => value.getOffer(this.state.offerId)} className="buttonStyle">Search offer</Button>
                                         </div>
         
                                         <div id="newOffer" className="headerTopElement">
@@ -238,7 +346,11 @@ export default class OfferHeader extends React.Component {
                                         </div>
         
                                         <div id="offerDateTime">
-                                            Offer created at: {value.offer.CreatedAt}
+                                            Offer created at: {
+                                                value.offer.CreatedAt.includes("T")
+                                                ? value.offer.CreatedAt.split("T")[0]
+                                                : value.offer.CreatedAt
+                                            }
                                         </div>
                                     </div>
                                 </div>
@@ -246,31 +358,38 @@ export default class OfferHeader extends React.Component {
                                 <div id="articlesHeader" className="headerBottomStyle">
                                     <div className="articleMiddle">
                                         <div id="selectArticle" className="buttonBottomStyle">
-                                            <Async
-                                                value={this.state.suggestions}
-                                                onChange={e => tmpArticleId = e.value.Id}
+                                            <AsyncSelect
+                                                options={this.state.suggestions}
                                                 loadOptions={this.getData}
+                                                onChange={(e) => this.articleSelected(e)}
+                                                isClearable={true}
                                             />
                                         </div>
         
                                         <div id="addToOffer" className="buttonBottomStyle buttonSpace">
-                                            <Button onClick={value.addToCollection}>Add to offer</Button>
+                                            <Button onClick={async () => {
+                                                await this.getArticleById()
+                                                    .then(result => {
+                                                        value.addToCollection(result, this.state.offerId);
+                                                        value.getOffer(this.state.offerId);
+                                                    });
+                                                }}>Add to offer</Button>
                                         </div>
         
                                         <div id="updateArticle" className="buttonBottomStyle buttonSpace">
-                                            <Button>Change article</Button>
-                                            <Modal isOpen={this.state.modalForNewArticleIsOpen}>
-                                                <ModalHeader toggle={this.toggleNewArticle}>New article</ModalHeader>
+                                            <Button onClick={this.toggleUpdateArticle}>Change article</Button>
+                                            <Modal isOpen={this.state.modalForUpdateArticleIsOpen}>
+                                                <ModalHeader toggle={this.toggleUpdateArticle}>Update article</ModalHeader>
                                                 <ModalBody>
-                                                    Enter name for new article:
-                                                    <Input value={tmpArticle.Name} onChange={this.onNewArticleNameChange}/>
+                                                    Change article name:
+                                                    <Input value={this.state.selectedArticleName} onChange={this.onUpdateArticleNameChange}/>
                                                     <br/>
-                                                    Enter price for new article:
-                                                    <Input value={tmpArticle.UnitPrice} onChange={this.onNewArticlePriceChange}/>
+                                                    Change article price:
+                                                    <Input value={this.state.selectedArticePrice} onChange={this.onUpdateArticlePriceChange}/>
                                                 </ModalBody>
                                                 <ModalFooter>
-                                                    <Button color="primary" onClick={this.addNewArticle}>Add</Button>
-                                                    <Button color="secondary" onClick={this.toggleNewArticle}>Close</Button>
+                                                    <Button color="primary" onClick={this.updateArticle}>Update</Button>
+                                                    <Button color="secondary" onClick={this.toggleUpdateArticle}>Close</Button>
                                                 </ModalFooter>
                                             </Modal>
                                         </div>
@@ -301,13 +420,15 @@ export default class OfferHeader extends React.Component {
 
                                 <div id="articleList">
                                     {
-                                        Object(value.articleCollection).map((article, key) => {
-                                            if(article != null) {
-                                                return(
-                                                    value.renderArticle(article, key)
-                                                )
-                                            }
-                                        })
+                                        value.articleCollection 
+                                            ? Object(value.articleCollection).map((article, key) => {
+                                                if(article != null) {
+                                                    return(
+                                                        value.renderArticle(article, key)
+                                                    )
+                                                }
+                                            })
+                                            : <div></div>
                                     }
                                 </div>
                             </div>

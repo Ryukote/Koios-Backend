@@ -5,7 +5,6 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace KoiosOffers.Data
@@ -21,7 +20,7 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddAsync(OfferViewModel viewModel)
         {
-            var existingOffer = _dbContext.Offer.Where(x => x.Id.Equals(viewModel.Id)).FirstOrDefault();
+            var existingOffer = _dbContext.Offer.Where(x => x.Number.Equals(viewModel.Number)).FirstOrDefault();
 
             if (existingOffer != null)
             {
@@ -67,9 +66,18 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddOfferArticleAsync(int offerId, int articleId)
         {
-            var oaExisting = await _dbContext.OfferArticle.FirstAsync(x => x.OfferId.Equals(offerId) && x.ArticleId.Equals(articleId));
+            OfferArticle oaExisting = null;
 
-            if(oaExisting == null)
+            try
+            {
+                oaExisting = await _dbContext.OfferArticle.FirstAsync(x => x.OfferId.Equals(offerId) && x.ArticleId.Equals(articleId));
+            }
+            catch(Exception)
+            {
+                oaExisting = null;
+            }
+
+            if(oaExisting != null)
             {
                 return 0;
             }
@@ -175,30 +183,6 @@ namespace KoiosOffers.Data
 
             return converted;
         }
-
-        //public async Task<IEnumerable<OfferViewModel>> GetAsync(Func<OfferViewModel, bool> filter = null, int skip = 0, int take = 0, string term = "")
-        //{
-        //    var query = _dbContext.Offer;
-
-        //    var converted = ModelConverter.ToOfferViewModelEnumerable(query);
-
-        //    if (filter != null)
-        //    {
-        //        converted = converted.Where(filter);
-        //    }
-
-        //    if (skip > 0)
-        //    {
-        //        converted = converted.Skip(skip);
-        //    }
-
-        //    if (take > 0)
-        //    {
-        //        converted = converted.Take(take);
-        //    }
-
-        //    return converted;
-        //}
 
         public async Task<int> UpdateAsync(OfferViewModel model)
         {

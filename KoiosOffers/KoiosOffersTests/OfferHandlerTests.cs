@@ -77,7 +77,6 @@ namespace KoiosOffersTests
 
             OfferViewModel offer = new OfferViewModel()
             {
-                //Id = id,
                 CreatedAt = DateTime.UtcNow,
                 Number = 2,
                 TotalPrice = 70
@@ -85,7 +84,6 @@ namespace KoiosOffersTests
 
             OfferViewModel updatedOffer = new OfferViewModel()
             {
-                //Id = id,
                 CreatedAt = DateTime.UtcNow,
                 Number = 2,
                 TotalPrice = 70
@@ -138,14 +136,12 @@ namespace KoiosOffersTests
         [Fact]
         public async Task WillDeleteOffer()
         {
-            //var id = 1;
             var databaseName = Guid.NewGuid().ToString();
 
             var sut = GetInMemoryForOffer(databaseName);
 
             OfferViewModel offer = new OfferViewModel()
             {
-                //Id = id,
                 CreatedAt = DateTime.UtcNow,
                 Number = 2,
                 TotalPrice = 70

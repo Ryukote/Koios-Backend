@@ -1,5 +1,4 @@
 ﻿using KoiosOffers.Contracts;
-using System.ComponentModel.DataAnnotations;
 
 namespace KoiosOffers.Models
 {

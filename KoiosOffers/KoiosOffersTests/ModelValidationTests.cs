@@ -1,6 +1,0 @@
-﻿namespace KoiosOffersTests
-{
-    class ModelValidationTests
-    {
-    }
-}

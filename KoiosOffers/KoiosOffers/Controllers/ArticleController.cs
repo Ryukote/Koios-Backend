@@ -9,8 +9,8 @@ using System.Threading.Tasks;
 
 namespace KoiosOffers.Controllers
 {
+    [EnableCors("CorsPolicy")]
     [Route("api/[controller]/[action]")]
-    [EnableCors("AllowOrigin")]
     [ApiController]
     public class ArticleController : ControllerBase, IArticleController
     {
@@ -36,10 +36,11 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
-            return Ok(JsonConvert.SerializeObject(result));
+            return Ok(result);
         }
 
         [HttpGet]
+        [ActionName("GetById")]
         public async Task<IActionResult> GetById([FromQuery]int id)
         {
             var result = await _article.GetByIdAsync(id);
@@ -49,7 +50,7 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
-            return Ok(JsonConvert.SerializeObject(result));
+            return Ok(result);
         }
 
         [HttpGet]
@@ -62,7 +63,7 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
-            return Ok(JsonConvert.SerializeObject(result));
+            return Ok(result);
         }
 
         [HttpGet]

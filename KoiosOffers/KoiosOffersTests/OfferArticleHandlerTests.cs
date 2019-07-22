@@ -3,8 +3,6 @@ using KoiosOffers.Data;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Logging.Console;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -23,7 +21,6 @@ namespace KoiosOffersTests
             builder.EnableSensitiveDataLogging(true);
             options = builder.Options;
             OfferContext offerContext = new OfferContext(options);
-
             offerContext.Database.EnsureCreated();
             return new ArticleHandler(offerContext);
         }

@@ -1,5 +1,5 @@
 ﻿using KoiosOffers.Contracts;
-using KoiosOffers.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;

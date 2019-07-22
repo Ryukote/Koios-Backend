@@ -1,8 +1,5 @@
-﻿using KoiosOffers.Models;
-using KoiosOffers.ViewModels;
-using System;
+﻿using KoiosOffers.ViewModels;
 using System.Collections.Generic;
-using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace KoiosOffers.Contracts

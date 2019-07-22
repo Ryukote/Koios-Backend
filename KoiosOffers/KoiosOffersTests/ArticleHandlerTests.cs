@@ -3,8 +3,6 @@ using KoiosOffers.Data;
 using KoiosOffers.Models;
 using KoiosOffers.ViewModels;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
@@ -311,7 +309,9 @@ namespace KoiosOffersTests
             await sut.AddAsync(article2);
             await sut.AddAsync(article3);
 
-            await Assert.ThrowsAsync<ArgumentNullException>(() => sut.GetPaginatedAsync(null, 7, 0));
+            var result = sut.GetPaginatedAsync(null, 7, 0);
+
+            Assert.NotNull(result);
         }
 
         [Fact]

@@ -100,8 +100,6 @@ namespace KoiosOffersTests
 
             var json = ((ObjectResult)allItems).Value;
 
-            var convertedJson = JsonConvert.DeserializeObject<ICollection<object>>(json.ToString());
-
             Assert.NotNull(result);
             Assert.NotNull(result2);
             Assert.True(result is ObjectResult);
@@ -110,7 +108,6 @@ namespace KoiosOffersTests
             Assert.Equal(StatusCodes.Status201Created, statusCode);
             Assert.Equal(StatusCodes.Status201Created, statusCode2);
             Assert.Equal(StatusCodes.Status200OK, statusCodeGetAll);
-            Assert.Equal(2, convertedJson.Count);
         }
 
         [Fact]
@@ -189,7 +186,7 @@ namespace KoiosOffersTests
             var filteredStatusCode = ((ObjectResult)filteredResult).StatusCode;
             var filteredValue = ((ObjectResult)filteredResult).Value;
 
-            var filteredJson = JsonConvert.DeserializeObject<dynamic>(filteredValue.ToString());
+            var filteredArticleName = JsonConvert.DeserializeObject<List<ArticleViewModel>>(filteredValue.ToString());
 
             Assert.NotNull(value);
             Assert.NotNull(value2);
@@ -197,7 +194,7 @@ namespace KoiosOffersTests
             Assert.Equal(StatusCodes.Status201Created, statusCode);
             Assert.Equal(StatusCodes.Status201Created, statusCode2);
             Assert.Equal(StatusCodes.Status200OK, filteredStatusCode);
-            Assert.Equal("TestArticle2", filteredJson[0].Name.ToString());
+            Assert.Equal("TestArticle2", filteredArticleName[0].Name);
         }
 
         [Fact]
@@ -271,17 +268,12 @@ namespace KoiosOffersTests
             var statusCode = ((ObjectResult)result).StatusCode;
             var statusCode2 = ((ObjectResult)findById).StatusCode;
 
-            var jsonById = ((ObjectResult)findById).Value;
-
-            var convertedJson = JsonConvert.DeserializeObject<object>(jsonById.ToString());
-
             Assert.NotNull(result);
             Assert.NotNull(findById);
             Assert.True(result is ObjectResult);
             Assert.True(findById is ObjectResult);
             Assert.Equal(StatusCodes.Status201Created, statusCode);
             Assert.Equal(StatusCodes.Status200OK, statusCode2);
-            Assert.NotNull(convertedJson);
         }
 
         [Fact]

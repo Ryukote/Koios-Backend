@@ -2,6 +2,7 @@ import React, { createContext } from 'react';
 import { Button } from 'reactstrap';
 import axios from 'axios';
 import lodash from 'lodash';
+import './OfferContext.css';
 
 export const OfferContext = createContext({
   articleCollection: [],
@@ -28,7 +29,12 @@ export class OfferProvider extends React.Component {
             getData: this.getData.bind(this),
             suggestions: [],
             offerId: 0,
-            offer: {},
+            offer: {
+                Id: 0,
+                Number: 0,
+                CreatedAt: "",
+                TotalPrice: 0
+            },
             toggle: true
         }
 
@@ -57,6 +63,10 @@ export class OfferProvider extends React.Component {
     }
 
     getOffer = async (offerId) => {
+        this.setState({
+            articleCollection: []
+        })
+
         let url = "http://localhost:59189/api/Offer/GetOfferArticles?offerId="
             + offerId;
 
@@ -64,6 +74,7 @@ export class OfferProvider extends React.Component {
             + offerId;
 
         await axios.get(offerUrl).then(response => {
+            console.log(response.data);
             this.setState({
                 offer: response.data
             });
@@ -92,14 +103,34 @@ export class OfferProvider extends React.Component {
         })
     }    
     
-    addToCollection = (article) => {
-        let tmpArray = this.state.articleCollection.slice();
+    addToCollection = (article, offerId) => {
+        let tmpArray;
+
+        this.state.articleCollection != []
+            ? tmpArray = this.state.articleCollection
+            : tmpArray = []
 
         tmpArray.push(article);
 
         this.setState({
             articleCollection: tmpArray
         })
+
+        this.addOfferArticle(offerId, article.id);
+    }
+
+    addOfferArticle = async (offerId, articleId) => {
+        console.log("Pizda");
+        console.log(offerId);
+        console.log(articleId);
+        await axios.post('http://localhost:59189/api/Offer/AddOfferArticle', {
+            "OfferId": offerId,
+            "ArticleId": articleId
+        }).then(response => {
+                return response.data;
+            }).catch(() => {
+                return -1;
+            });
     }
 
     deleteArticleFromOffer = async (articleId) => {
@@ -120,10 +151,10 @@ export class OfferProvider extends React.Component {
     removeFromCollection = (article) => {
         let tmpArray = this.state.articleCollection;
 
-        this.deleteArticleFromOffer(article.Id)
+        this.deleteArticleFromOffer(article.id)
             .then(() => {
                 tmpArray = lodash.remove(tmpArray, value => 
-                    value.Id !== article.Id
+                    value.Id !== article.id
                 )
         
             this.setState({
@@ -139,17 +170,17 @@ export class OfferProvider extends React.Component {
     renderArticle = (value, key) => {
         if(value != null){
             return(
-                <div key={key}>
+                <div className="articlePosition" key={key}>
                     <div>
-                        {"Article id: " + value.Id}
+                        {"Article id: " + value.id}
                     </div>
     
                     <div>
-                        {"Article name: " + value.Name}
+                        {"Article name: " + value.name}
                     </div>
     
                     <div>
-                        {"Article price: " + value.UnitPrice}
+                        {"Article price: " + value.unitPrice}
                     </div>
     
                     <div>
@@ -181,6 +212,7 @@ export class OfferProvider extends React.Component {
             await axios.get(url)
                 .then(response => {
                     result = response.data
+                    return result;
                 }).catch(error => {
                     alert("Something went wrong");
                     throw error;
