@@ -63,10 +63,6 @@ export class OfferProvider extends React.Component {
     }
 
     getOffer = async (offerId) => {
-        this.setState({
-            articleCollection: []
-        })
-
         let url = "http://localhost:59189/api/Offer/GetOfferArticles?offerId="
             + offerId;
 
@@ -74,7 +70,6 @@ export class OfferProvider extends React.Component {
             + offerId;
 
         await axios.get(offerUrl).then(response => {
-            console.log(response.data);
             this.setState({
                 offer: response.data
             });
@@ -120,9 +115,6 @@ export class OfferProvider extends React.Component {
     }
 
     addOfferArticle = async (offerId, articleId) => {
-        console.log("Pizda");
-        console.log(offerId);
-        console.log(articleId);
         await axios.post('http://localhost:59189/api/Offer/AddOfferArticle', {
             "OfferId": offerId,
             "ArticleId": articleId

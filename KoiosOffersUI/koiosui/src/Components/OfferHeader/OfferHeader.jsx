@@ -6,39 +6,25 @@ import lodash from 'lodash';
 import { OfferContext } from '../OfferContext/OfferContext';
 import AsyncSelect from 'react-select/async';
 
-let tmpId = 0;
-let newOfferNumber = 0;
 let newArticleName = "";
 let newArticlePrice = 0;
-let offerId = 0;
-let tmpArticleId = 0;
-let tmpArticle = {};
 
 export default class OfferHeader extends React.Component {
     constructor(props) {
         super(props)
         this.state = {
-             id: 0,
-             visible: true,
              modalIsOpen: false,
              modalForNewArticleIsOpen: false,
              modalForUpdateArticleIsOpen: false,
              offerId: null,
-             suggestionText: '',
              newOfferNumber: '',
-             offerNumber: 0,
-             offerCreatedAt: "",
-             value: '',
              suggestions: [],
-             selectedOption: {},
              articleIdToOperate: null,
              selectedArticleName: '',
              selectedArticePrice: null
         }
 
         this.onTextChange = this.onTextChange.bind(this);
-        this.onSelect = this.onSelect.bind(this);
-        this.onSuggestionChange = this.onSuggestionChange.bind(this);
         this.onUpdateArticleNameChange = this.onUpdateArticleNameChange.bind(this);
         this.onUpdateArticlePriceChange = this.onUpdateArticlePriceChange.bind(this);
         this.toggle = this.toggle.bind(this);
@@ -97,7 +83,7 @@ export default class OfferHeader extends React.Component {
     }
 
     getArticleById = async () => {
-        if(this.state.articleIdToOperate != null) {
+        if(this.state.articleIdToOperate !== null) {
             let url = "https://localhost:44315/api/Article/GetById?id="
             + this.state.articleIdToOperate;
 
@@ -154,34 +140,6 @@ export default class OfferHeader extends React.Component {
         }
     }
 
-    onSuggestionChange = (e) => {
-        let text = e.target.value;
-
-        this.getData(text);
-
-        this.setState({
-          suggestionText: text
-        });
-    };
-
-    onSelect(val) {
-        this.setState({
-            value: val
-        });
-    }
-
-    renderItem(item, isHighlighted){
-        return (
-            <div style={{ background: isHighlighted ? 'lightgray' : 'white' }}>
-                {item.name}
-            </div>   
-        ); 
-    }
-
-    getItemValue(item){
-        return item.Name;
-    }
-
     toggle() {
         this.setState({
             modalIsOpen: ! this.state.modalIsOpen
@@ -219,18 +177,6 @@ export default class OfferHeader extends React.Component {
             this.toggle();
             throw error;
         })
-    }
-
-    deleteArticle = async () => {
-        let url = "http://localhost:59189/api/Article/Delete?id="
-        + this.state.articleIdToOperate;
-
-        await axios.Delete(url).then(() => {
-            alert("Article deleted");
-        }).catch(error => {
-            alert("Something went wrong");
-            throw error;
-        });
     }
 
     updateArticle = async () => {
@@ -284,10 +230,6 @@ export default class OfferHeader extends React.Component {
         });
     }
 
-    getOptionValue = option => {
-        return option;
-    };
-
     loadOptions = (inputValue, callback) => {
         setTimeout(() => {
           callback(this.getData(inputValue));
@@ -298,13 +240,6 @@ export default class OfferHeader extends React.Component {
         this.setState({
             articleIdToOperate: data.value
         });
-    }
-
-    createdDateContains = (value) => {
-        console.log("Value: " + value);
-        let tmpValue = value;
-
-        return tmpValue.includes("T") ? true : false;
     }
 
     render() {
@@ -422,11 +357,13 @@ export default class OfferHeader extends React.Component {
                                     {
                                         value.articleCollection 
                                             ? Object(value.articleCollection).map((article, key) => {
-                                                if(article != null) {
+                                                if(article !== null) {
                                                     return(
                                                         value.renderArticle(article, key)
                                                     )
                                                 }
+
+                                                return <div></div>
                                             })
                                             : <div></div>
                                     }
