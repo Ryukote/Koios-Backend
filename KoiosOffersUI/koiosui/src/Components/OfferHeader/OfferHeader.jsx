@@ -239,8 +239,10 @@ export default class OfferHeader extends React.Component {
     };
 
     articleSelected = (data) => {
+        const value = data === null ? '' : data.value
+
         this.setState({
-            articleIdToOperate: data.value
+            articleIdToOperate: value
         });
     }
 
