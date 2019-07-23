@@ -345,8 +345,8 @@ export default class OfferHeader extends React.Component {
                                                     <Button color="primary" onClick={async () => {
                                                         if(this.state.offerId !== null) {
                                                             await this.getArticleById()
-                                                                .then(result => {
-                                                                    value.addToCollection(result, this.state.offerId, this.state.amount);
+                                                                .then(async(result) => {
+                                                                    await value.addToCollection(result, this.state.offerId, this.state.amount);
                                                                     value.getOffer(this.state.offerId);
                                                                     this.toggleAddArticleToOffer();
                                                                 });

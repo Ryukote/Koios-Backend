@@ -126,15 +126,6 @@ export class OfferProvider extends React.Component {
             let tmpArray = [];
             let tmpSum = 0;
 
-            // for(let index in response.data) {
-            //     let tmpValue = response.data[index];
-            //     if(!tmpArray.includes(tmpValue.id)) {
-            //         tmpArray.push(tmpValue.id);
-            //         console.log(tmpValue);
-            //         tmpSum += tmpValue.unitPrice * (tmpValue.amount !== undefined ? tmpValue.amount : 1);
-            //     }
-            // }
-
             this.setState({
                 totalPrice: tmpSum
             });
@@ -145,13 +136,9 @@ export class OfferProvider extends React.Component {
                 let tmpValue = response.data[index];
                 if(!tmpArray.includes(tmpValue.id)) {
                     tmpArray.push(tmpValue.id);
-                    console.log(tmpValue);
                     tmpSum += tmpValue.unitPrice * (tmpValue.amount !== undefined ? tmpValue.amount : 1);
                 }
             }
-
-            console.log("Ukupni zbroj cijene artikala:");
-            console.log(tmpSum);
 
             this.setState({
                 totalPrice: tmpSum
@@ -165,10 +152,10 @@ export class OfferProvider extends React.Component {
         })
     }    
     
-    addToCollection = (article, offerId, amount) => {
+    addToCollection = async(article, offerId, amount) => {
         let tmpArray;
 
-        this.state.articleCollection !== []
+        this.state.articleCollection !== [] && this.state.articleCollection.length > 0
             ? tmpArray = this.state.articleCollection
             : tmpArray = []
 
@@ -179,7 +166,7 @@ export class OfferProvider extends React.Component {
         })
 
         for(let i = 0; i < amount; i++) {
-            this.addOfferArticle(offerId, article.id);
+            await this.addOfferArticle(offerId, article.id);
         }
         
         let calculatedTotalPrice = this.state.totalPrice + article.totalPrice;
@@ -207,17 +194,13 @@ export class OfferProvider extends React.Component {
             + articleId;
 
         await axios.delete(url)
-            .then(() => {
-                // value.appendArticleToOffer();
-            }).catch(error => {
+            .then().catch(error => {
                 alert("Something went wrong");
                 throw error;
             })
     }
 
-    removeFromCollection = (article) => {
-        // debugger;
-        
+    removeFromCollection = async (article) => {
         let tmpArray = this.state.articleCollection;
 
         this.deleteArticleFromOffer(article.id)
@@ -231,9 +214,7 @@ export class OfferProvider extends React.Component {
             })
         })
 
-        // this.appendArticleToOffer();
-
-        this.getOffer(this.state.offerId);
+        await this.getOffer(this.state.offerId);
     }
 
     returnCollection = () => {
@@ -263,7 +244,7 @@ export class OfferProvider extends React.Component {
                     <div>
                         <Button
                             color="danger"
-                            onClick={() => this.removeFromCollection({...value})}
+                            onClick={async () => await this.removeFromCollection({...value})}
                         >
                             Remove from offer
                         </Button>

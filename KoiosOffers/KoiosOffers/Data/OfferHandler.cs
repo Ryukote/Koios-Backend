@@ -97,8 +97,6 @@ namespace KoiosOffers.Data
 
         public async Task<int> DeleteOfferArticle(int offerId, int articleId)
         {
-            //var result = _dbContext.OfferArticle.FirstOrDefault(x => x.OfferId.Equals(offerId) && x.ArticleId.Equals(articleId));
-
             var result = await _dbContext.OfferArticle.Where(x => x.OfferId.Equals(offerId)
                 && x.ArticleId.Equals(articleId)).ToListAsync();
 
