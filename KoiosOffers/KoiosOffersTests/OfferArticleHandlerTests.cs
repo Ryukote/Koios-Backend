@@ -100,7 +100,7 @@ namespace KoiosOffersTests
             Assert.False(article == null);
             Assert.False(offer == null);
             Assert.False(offerArticle == null);
-            Assert.True(result > 0);
+            Assert.Equal(0, result);
         }
 
         [Fact]
