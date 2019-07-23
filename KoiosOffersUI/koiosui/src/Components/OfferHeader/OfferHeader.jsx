@@ -16,12 +16,14 @@ export default class OfferHeader extends React.Component {
              modalIsOpen: false,
              modalForNewArticleIsOpen: false,
              modalForUpdateArticleIsOpen: false,
+             modalForAddToOfferIsOpen: false,
              offerId: null,
              newOfferNumber: '',
              suggestions: [],
              articleIdToOperate: null,
              selectedArticleName: '',
-             selectedArticePrice: null
+             selectedArticePrice: null,
+             amount: 0
         }
 
         this.onTextChange = this.onTextChange.bind(this);
@@ -31,6 +33,7 @@ export default class OfferHeader extends React.Component {
         this.onAddOfferChange = this.onAddOfferChange.bind(this);
         this.toggleNewArticle = this.toggleNewArticle.bind(this);
         this.toggleUpdateArticle = this.toggleUpdateArticle.bind(this);
+        this.toggleAddArticleToOffer = this.toggleAddArticleToOffer.bind(this);
         this.getData = this.getData.bind(this);
         this.articleSelected = this.articleSelected.bind(this);
         this.updateArticle = this.updateArticle.bind(this);
@@ -48,6 +51,8 @@ export default class OfferHeader extends React.Component {
                 return suggestions
             }
         )
+
+        this.appendArticleToOffer();
     }
 
     onTextChange = (e) => {
@@ -73,6 +78,12 @@ export default class OfferHeader extends React.Component {
     onUpdateArticleNameChange = (e) => {
         this.setState({
             selectedArticleName: e.target.value
+        })
+    }
+
+    onAmountChange = (e) => {
+        this.setState({
+            amount: e.target.value
         })
     }
 
@@ -157,6 +168,14 @@ export default class OfferHeader extends React.Component {
 
         this.setState({
             modalForUpdateArticleIsOpen: ! this.state.modalForUpdateArticleIsOpen
+        })
+    }
+
+    toggleAddArticleToOffer() {
+        // this.getArticleById();
+
+        this.setState({
+            modalForAddToOfferIsOpen: ! this.state.modalForAddToOfferIsOpen
         })
     }
 
@@ -311,19 +330,37 @@ export default class OfferHeader extends React.Component {
                                         </div>
         
                                         <div id="addToOffer" className="buttonBottomStyle buttonSpace">
-                                            <Button onClick={async () => {
-                                                if(this.state.offerId !== null) {
-                                                    await this.getArticleById()
-                                                    .then(result => {
-                                                        value.addToCollection(result, this.state.offerId);
-                                                        value.getOffer(this.state.offerId);
-                                                    });
-                                                }
+                                            <Button 
+                                                onClick={this.toggleAddArticleToOffer}
+                                            >
+                                                Add to offer
+                                            </Button>
+                                            <Modal isOpen={this.state.modalForAddToOfferIsOpen}>
+                                                <ModalHeader toggle={this.toggleAddArticleToOffer}>Add article to offer</ModalHeader>
+                                                <ModalBody>
+                                                    Enter amount:
+                                                    <Input value={this.state.amount} onChange={this.onAmountChange}/>
+                                                </ModalBody>
+                                                <ModalFooter>
+                                                    <Button color="primary" onClick={async () => {
+                                                        if(this.state.offerId !== null) {
+                                                            await this.getArticleById()
+                                                                .then(result => {
+                                                                    value.addToCollection(result, this.state.offerId, this.state.amount);
+                                                                    value.getOffer(this.state.offerId);
+                                                                    this.toggleAddArticleToOffer();
+                                                                });
+                                                        }
 
-                                                else {
-                                                    alert("You haven't selected any offer");
-                                                }
-                                            }}>Add to offer</Button>
+                                                        else {
+                                                            alert("You haven't selected any offer");
+                                                        }
+                                                    }}>
+                                                        Add
+                                                    </Button>
+                                                    <Button color="secondary" onClick={this.toggleAddArticleToOffer}>Close</Button>
+                                                </ModalFooter>
+                                            </Modal>
                                         </div>
         
                                         <div id="updateArticle" className="buttonBottomStyle buttonSpace">

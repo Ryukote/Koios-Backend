@@ -66,25 +66,32 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddOfferArticleAsync(int offerId, int articleId)
         {
-            OfferArticle oaExisting = null;
+            //OfferArticle oaExisting = null;
+
+            //try
+            //{
+            //    oaExisting = await _dbContext.OfferArticle.FirstAsync(x => x.OfferId.Equals(offerId) && x.ArticleId.Equals(articleId));
+            //}
+            //catch(Exception)
+            //{
+            //    oaExisting = null;
+            //}
+
+            //if(oaExisting != null)
+            //{
+            //    return 0;
+            //}
 
             try
             {
-                oaExisting = await _dbContext.OfferArticle.FirstAsync(x => x.OfferId.Equals(offerId) && x.ArticleId.Equals(articleId));
+                _dbContext.OfferArticle.Add(new OfferArticle() { OfferId = offerId, ArticleId = articleId });
+                await _dbContext.SaveChangesAsync();
+                return 1;
             }
             catch(Exception)
             {
-                oaExisting = null;
-            }
-
-            if(oaExisting != null)
-            {
                 return 0;
             }
-
-            _dbContext.OfferArticle.Add(new OfferArticle() { OfferId = offerId, ArticleId = articleId });
-            await _dbContext.SaveChangesAsync();
-            return 1;
         }
 
         public async Task<int> DeleteAsync(int id)

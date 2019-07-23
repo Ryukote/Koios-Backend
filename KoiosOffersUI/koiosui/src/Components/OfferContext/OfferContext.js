@@ -36,7 +36,8 @@ export class OfferProvider extends React.Component {
                 TotalPrice: 0
             },
             toggle: true,
-            totalPrice: 0
+            totalPrice: 0,
+            amount: 0
         }
 
         this.getOffer = this.getOffer.bind(this);
@@ -46,6 +47,37 @@ export class OfferProvider extends React.Component {
         this.renderArticle = this.renderArticle.bind(this);
         this.createOffer = this.createOffer.bind(this);
         this.getData = this.getData.bind(this);
+        this.appendArticleToOffer = this.appendArticleToOffer.bind(this);
+    }
+
+    articleExistsInOffer = (articleId) => {
+        let tmpArticles = this.state.articleCollection;
+
+        for(let index in tmpArticles) {
+            if (tmpArticles[index].id ===  articleId) {
+                return index;
+            }
+        }
+        return -1;
+    }
+
+    appendArticleToOffer = () => {
+        let tmpArticles = this.state.articleCollection;
+
+        for(let index in tmpArticles) {
+            let exists = this.articleExistsInOffer(tmpArticles[index].id);
+
+            if (exists >= 0) {
+                if(!tmpArticles[exists].hasOwnProperty("amount")) {
+                    tmpArticles[exists].amount = 0;
+                }
+                tmpArticles[exists].amount += 1;
+            } 
+        }
+
+        this.setState({
+            articleCollection: tmpArticles
+        })
     }
 
     createOffer = () => {
@@ -94,20 +126,36 @@ export class OfferProvider extends React.Component {
             let tmpArray = [];
             let tmpSum = 0;
 
-            for(let index in response.data) {
-                let tmpValue = response.data[index];
-                if(!tmpArray.includes(tmpValue.id)) {
-                    tmpArray.push(tmpValue.id);
-                    tmpSum += tmpValue.unitPrice;
-                }
-            }
+            // for(let index in response.data) {
+            //     let tmpValue = response.data[index];
+            //     if(!tmpArray.includes(tmpValue.id)) {
+            //         tmpArray.push(tmpValue.id);
+            //         console.log(tmpValue);
+            //         tmpSum += tmpValue.unitPrice * (tmpValue.amount !== undefined ? tmpValue.amount : 1);
+            //     }
+            // }
 
             this.setState({
                 totalPrice: tmpSum
             });
 
+            this.appendArticleToOffer();
+
+            for(let index in response.data) {
+                let tmpValue = response.data[index];
+                if(!tmpArray.includes(tmpValue.id)) {
+                    tmpArray.push(tmpValue.id);
+                    console.log(tmpValue);
+                    tmpSum += tmpValue.unitPrice * (tmpValue.amount !== undefined ? tmpValue.amount : 1);
+                }
+            }
+
             console.log("Ukupni zbroj cijene artikala:");
             console.log(tmpSum);
+
+            this.setState({
+                totalPrice: tmpSum
+            })
         }).catch(error => {
             this.setState({
                 articleCollection: []
@@ -117,7 +165,7 @@ export class OfferProvider extends React.Component {
         })
     }    
     
-    addToCollection = (article, offerId) => {
+    addToCollection = (article, offerId, amount) => {
         let tmpArray;
 
         this.state.articleCollection !== []
@@ -130,15 +178,15 @@ export class OfferProvider extends React.Component {
             articleCollection: tmpArray
         })
 
-        this.addOfferArticle(offerId, article.id);
+        for(let i = 0; i < amount; i++) {
+            this.addOfferArticle(offerId, article.id);
+        }
         
         let calculatedTotalPrice = this.state.totalPrice + article.totalPrice;
 
         this.setState({
             totalPrice: calculatedTotalPrice
         });
-
-        console.log("Cijena nadodanog artikla: " + article.unitPrice);
     }
 
     addOfferArticle = async (offerId, articleId) => {
@@ -146,9 +194,9 @@ export class OfferProvider extends React.Component {
             "OfferId": offerId,
             "ArticleId": articleId
         }).then(response => {
-                return response.data;
-            }).catch(() => {
-                return -1;
+            return response.data;
+        }).catch(() => {
+            return -1;
         });
     }
 
@@ -160,7 +208,7 @@ export class OfferProvider extends React.Component {
 
         await axios.delete(url)
             .then(() => {
-                alert("Article removed from offer");
+                // value.appendArticleToOffer();
             }).catch(error => {
                 alert("Something went wrong");
                 throw error;
@@ -168,6 +216,8 @@ export class OfferProvider extends React.Component {
     }
 
     removeFromCollection = (article) => {
+        // debugger;
+        
         let tmpArray = this.state.articleCollection;
 
         this.deleteArticleFromOffer(article.id)
@@ -181,6 +231,8 @@ export class OfferProvider extends React.Component {
             })
         })
 
+        // this.appendArticleToOffer();
+
         this.getOffer(this.state.offerId);
     }
 
@@ -189,7 +241,7 @@ export class OfferProvider extends React.Component {
     }
 
     renderArticle = (value, key) => {
-        if(value != null){
+        if(value != null && value.amount !== undefined){
             return(
                 <div className="articlePosition" key={key}>
                     <div>
@@ -202,6 +254,10 @@ export class OfferProvider extends React.Component {
     
                     <div>
                         {"Article price: " + value.unitPrice}
+                    </div>
+
+                    <div>
+                        {"Amount: " + value.amount}
                     </div>
     
                     <div>
@@ -216,9 +272,7 @@ export class OfferProvider extends React.Component {
             );
         }
         else{
-            return(
-                <div></div>
-            );
+            return null;
         }
     }
 
