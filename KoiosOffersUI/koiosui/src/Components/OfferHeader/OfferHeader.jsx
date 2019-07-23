@@ -277,14 +277,19 @@ export default class OfferHeader extends React.Component {
         
                                     <div id="headerBottom">
                                         <div id="offerNumber">
-                                            Offer number: {value.offer.Number}
+                                            {
+                                                value.offer.Number !== 0
+                                                ? "Offer number: " + value.offer.Number
+                                                : ""
+                                            }
                                         </div>
         
                                         <div id="offerDateTime">
-                                            Offer created at: {
+                                            {
                                                 value.offer.CreatedAt.includes("T")
-                                                ? value.offer.CreatedAt.split("T")[0]
-                                                : value.offer.CreatedAt
+                                                ? "Offer created at: " + value.offer.CreatedAt
+                                                    .split("T")[0]
+                                                : ""
                                             }
                                         </div>
                                     </div>
@@ -306,7 +311,7 @@ export default class OfferHeader extends React.Component {
                                                 await this.getArticleById()
                                                     .then(result => {
                                                         value.addToCollection(result, this.state.offerId);
-                                                        value.getOffer(this.state.offerId);
+                                                        // value.getOffer(this.state.offerId);
                                                     });
                                                 }}>Add to offer</Button>
                                         </div>

@@ -153,6 +153,8 @@ export class OfferProvider extends React.Component {
                 articleCollection: tmpArray
             })
         })
+
+        this.getOffer(this.state.offerId);
     }
 
     returnCollection = () => {
