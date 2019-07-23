@@ -312,12 +312,18 @@ export default class OfferHeader extends React.Component {
         
                                         <div id="addToOffer" className="buttonBottomStyle buttonSpace">
                                             <Button onClick={async () => {
-                                                await this.getArticleById()
+                                                if(this.state.offerId !== null) {
+                                                    await this.getArticleById()
                                                     .then(result => {
                                                         value.addToCollection(result, this.state.offerId);
                                                         value.getOffer(this.state.offerId);
                                                     });
-                                                }}>Add to offer</Button>
+                                                }
+
+                                                else {
+                                                    alert("You haven't selected any offer");
+                                                }
+                                            }}>Add to offer</Button>
                                         </div>
         
                                         <div id="updateArticle" className="buttonBottomStyle buttonSpace">
@@ -384,7 +390,7 @@ export default class OfferHeader extends React.Component {
 
                                 <div id="totalPrice" className="totalPriceStyle">
                                     {
-                                        value.totalPrice !== 0
+                                        value.totalPrice !== 0 && this.state.offerId !== null
                                         ? "Total offer price: " + value.totalPrice
                                         : <div></div>
                                     }
