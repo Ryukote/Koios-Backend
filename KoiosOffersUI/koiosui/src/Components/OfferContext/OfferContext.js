@@ -90,6 +90,24 @@ export class OfferProvider extends React.Component {
             this.setState({
                 offerId: offerId
             });
+
+            let tmpArray = [];
+            let tmpSum = 0;
+
+            for(let index in response.data) {
+                let tmpValue = response.data[index];
+                if(!tmpArray.includes(tmpValue.id)) {
+                    tmpArray.push(tmpValue.id);
+                    tmpSum += tmpValue.unitPrice;
+                }
+            }
+
+            this.setState({
+                totalPrice: tmpSum
+            });
+
+            console.log("Ukupni zbroj cijene artikala:");
+            console.log(tmpSum);
         }).catch(error => {
             this.setState({
                 articleCollection: []
@@ -119,6 +137,8 @@ export class OfferProvider extends React.Component {
         this.setState({
             totalPrice: calculatedTotalPrice
         });
+
+        console.log("Cijena nadodanog artikla: " + article.unitPrice);
     }
 
     addOfferArticle = async (offerId, articleId) => {
@@ -129,7 +149,7 @@ export class OfferProvider extends React.Component {
                 return response.data;
             }).catch(() => {
                 return -1;
-            });
+        });
     }
 
     deleteArticleFromOffer = async (articleId) => {

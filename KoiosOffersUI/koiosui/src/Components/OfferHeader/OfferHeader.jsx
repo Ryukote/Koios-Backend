@@ -313,6 +313,7 @@ export default class OfferHeader extends React.Component {
                                                 await this.getArticleById()
                                                     .then(result => {
                                                         value.addToCollection(result, this.state.offerId);
+                                                        value.getOffer(this.state.offerId);
                                                     });
                                                 }}>Add to offer</Button>
                                         </div>
@@ -329,7 +330,10 @@ export default class OfferHeader extends React.Component {
                                                     <Input value={this.state.selectedArticePrice} onChange={this.onUpdateArticlePriceChange}/>
                                                 </ModalBody>
                                                 <ModalFooter>
-                                                    <Button color="primary" onClick={this.updateArticle}>Update</Button>
+                                                    <Button color="primary" onClick={() => {
+                                                        this.updateArticle();
+                                                        value.getOffer(this.state.offerId);
+                                                    }}>Update</Button>
                                                     <Button color="secondary" onClick={this.toggleUpdateArticle}>Close</Button>
                                                 </ModalFooter>
                                             </Modal>
@@ -373,6 +377,14 @@ export default class OfferHeader extends React.Component {
                                             })
 
                                             : <div></div>
+                                    }
+                                </div>
+
+                                <div id="totalPrice" className="totalPriceStyle">
+                                    {
+                                        value.totalPrice !== 0
+                                        ? "Total offer price: " + value.totalPrice
+                                        : <div></div>
                                     }
                                 </div>
                             </div>
