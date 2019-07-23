@@ -35,7 +35,8 @@ export class OfferProvider extends React.Component {
                 CreatedAt: "",
                 TotalPrice: 0
             },
-            toggle: true
+            toggle: true,
+            totalPrice: 0
         }
 
         this.getOffer = this.getOffer.bind(this);
@@ -101,7 +102,7 @@ export class OfferProvider extends React.Component {
     addToCollection = (article, offerId) => {
         let tmpArray;
 
-        this.state.articleCollection != []
+        this.state.articleCollection !== []
             ? tmpArray = this.state.articleCollection
             : tmpArray = []
 
@@ -112,6 +113,12 @@ export class OfferProvider extends React.Component {
         })
 
         this.addOfferArticle(offerId, article.id);
+        
+        let calculatedTotalPrice = this.state.totalPrice + article.totalPrice;
+
+        this.setState({
+            totalPrice: calculatedTotalPrice
+        });
     }
 
     addOfferArticle = async (offerId, articleId) => {

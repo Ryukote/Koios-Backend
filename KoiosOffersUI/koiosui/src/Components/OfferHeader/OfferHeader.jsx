@@ -218,7 +218,7 @@ export default class OfferHeader extends React.Component {
         this.toggleNewArticle();
     }
 
-    deleteArticle = async () => {
+    deleteArticle = async (data) => {
         let url = "http://localhost:59189/api/Article/Delete?id="
             + this.state.articleIdToOperate;
 
@@ -228,6 +228,8 @@ export default class OfferHeader extends React.Component {
             alert("Something went wrong");
             throw error;
         });
+
+        await data.getOffer(data.offerId);
     }
 
     loadOptions = (inputValue, callback) => {
@@ -311,7 +313,6 @@ export default class OfferHeader extends React.Component {
                                                 await this.getArticleById()
                                                     .then(result => {
                                                         value.addToCollection(result, this.state.offerId);
-                                                        // value.getOffer(this.state.offerId);
                                                     });
                                                 }}>Add to offer</Button>
                                         </div>
@@ -335,7 +336,7 @@ export default class OfferHeader extends React.Component {
                                         </div>
         
                                         <div id="deleteArticle" className="buttonBottomStyle buttonSpace">
-                                            <Button onClick={this.deleteArticle}>Delete article</Button>
+                                            <Button onClick={() => this.deleteArticle(value)}>Delete article</Button>
                                         </div>
         
                                         <div id="createArticle" className="buttonBottomStyle">
@@ -370,6 +371,7 @@ export default class OfferHeader extends React.Component {
 
                                                 return <div></div>
                                             })
+
                                             : <div></div>
                                     }
                                 </div>
