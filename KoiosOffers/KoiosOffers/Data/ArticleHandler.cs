@@ -63,30 +63,11 @@ namespace KoiosOffers.Data
             return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<ArticleViewModel>> GetAllAsync()
-        {
-            var query = await _dbContext.Article.AsNoTracking().ToListAsync();
-
-            var converted = ModelConverter.ToArticleViewModelEnumerable(query);
-
-            return converted;
-        }
-
         public async Task<ArticleViewModel> GetByIdAsync(int id)
         {
             var article = await _dbContext.Article.AsNoTracking().FirstOrDefaultAsync(x => x.Id == id);
 
             return ModelConverter.ToArticleViewModel(article);
-        }
-
-        public async Task<int> GetIdByNameAsync(string name)
-        {
-            var query = await _dbContext.Article
-                .Where(x => x.Name.Equals(name))
-                .Select(x => x.Id)
-                .FirstAsync();
-
-            return query;
         }
 
         public async Task<IEnumerable<ArticleViewModel>> GetPaginatedAsync(string name = default, int take = default, int skip = default)

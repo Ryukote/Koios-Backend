@@ -24,25 +24,6 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var result = await _offer.GetAllAsync();
-
-            if (result.Count().Equals(0))
-            {
-                return NoContent();
-            }
-
-            else if (result == null)
-            {
-                return BadRequest();
-            }
-
-            //bilo je samo Ok(result)
-            return Ok(JsonConvert.SerializeObject(result));
-        }
-
-        [HttpGet]
         [ActionName("GetById")]
         public async Task<IActionResult> GetById([FromQuery]int id)
         {
@@ -55,39 +36,6 @@ namespace KoiosOffers.Controllers
 
             //bilo je samo Ok(result)
             return Ok(JsonConvert.SerializeObject(result));
-        }
-
-        [HttpGet]
-        [ActionName("GetPaginated")]
-        public async Task<IActionResult> GetPaginatedAsync([FromQuery]int offerNumber, [FromQuery]int skip, [FromQuery]int take)
-        {
-            var result = await _offer.GetPaginatedAsync(offerNumber, take, skip);
-
-            if (result.Count().Equals(0))
-            {
-                return NoContent();
-            }
-
-            else if (result == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(result);
-        }
-
-        [HttpGet]
-        [ActionName("GetOfferByOfferNumber")]
-        public async Task<IActionResult> GetOfferByOfferNumberAsync(int offerNumber)
-        {
-            var result = await _offer.GetOfferByOfferNumberAsync(offerNumber);
-
-            if(result == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(result);
         }
 
         [HttpGet]
@@ -137,38 +85,18 @@ namespace KoiosOffers.Controllers
         [ActionName("AddOfferArticle")]
         public async Task<IActionResult> PostOfferArticle([FromBody]OfferArticleViewModel offerArticleViewModel)
         {
-            if (offerArticleViewModel.ArticleId.Equals(0) || offerArticleViewModel.OfferId.Equals(0))
+            if (offerArticleViewModel.ArticleId.Equals(0) 
+                || offerArticleViewModel.OfferId.Equals(0))
             {
                 return BadRequest();
             }
 
-            var result = await _offer.AddOfferArticleAsync(offerArticleViewModel.OfferId, offerArticleViewModel.ArticleId);
+            var result = await _offer.AddOfferArticleAsync
+                (offerArticleViewModel.OfferId, offerArticleViewModel.ArticleId);
 
             if (result > 0)
             {
                 return Created("", result);
-            }
-
-            return BadRequest();
-        }
-
-        [HttpPut]
-        public async Task<IActionResult> Put([FromBody]OfferViewModel offerViewModel)
-        {
-            var result = 0;
-
-            try
-            {
-                result = await _offer.UpdateAsync(offerViewModel);
-            }
-            catch(DbUpdateConcurrencyException)
-            {
-                return BadRequest("You can't update record that doesn't exist.");
-            }
-
-            if (result > 0)
-            {
-                return NoContent();
             }
 
             return BadRequest();

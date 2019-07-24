@@ -7,9 +7,6 @@ namespace KoiosOffers.Contracts
     public interface IArticleController
     {
         [HttpGet]
-        Task<IActionResult> GetAll();
-
-        [HttpGet]
         Task<IActionResult> GetById([FromQuery]int id);
 
         [HttpGet]

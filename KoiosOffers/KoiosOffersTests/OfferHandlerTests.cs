@@ -69,60 +69,6 @@ namespace KoiosOffersTests
         }
 
         [Fact]
-        public async Task WillUpdateOffer()
-        {
-            var databaseName = Guid.NewGuid().ToString();
-
-            var sut = GetInMemoryForOffer(databaseName);
-
-            OfferViewModel offer = new OfferViewModel()
-            {
-                CreatedAt = DateTime.UtcNow,
-                Number = 2,
-                TotalPrice = 70
-            };
-
-            OfferViewModel updatedOffer = new OfferViewModel()
-            {
-                CreatedAt = DateTime.UtcNow,
-                Number = 2,
-                TotalPrice = 70
-            };
-
-            var resultId = await sut.AddAsync(offer);
-
-            updatedOffer.Id = resultId;
-
-            var newSut = GetInMemoryForOffer(databaseName);
-
-            int result = await newSut.UpdateAsync(updatedOffer);
-
-            Assert.False(offer == null);
-            Assert.False(updatedOffer == null);
-            Assert.True(result > 0);
-        }
-
-        [Fact]
-        public async Task UpdateOfferNonExistingId()
-        {
-            int id = 1000;
-            var databaseName = Guid.NewGuid().ToString();
-
-            var sut = GetInMemoryForOffer(databaseName);
-
-            OfferViewModel updatedOffer = new OfferViewModel()
-            {
-                Id = id,
-                CreatedAt = DateTime.UtcNow,
-                Number = 2,
-                TotalPrice = 70
-            };
-
-            Assert.False(updatedOffer == null);
-            await Assert.ThrowsAsync<DbUpdateConcurrencyException>(() => sut.UpdateAsync(updatedOffer));
-        }
-
-        [Fact]
         public async Task DeleteOfferNonExistingId()
         {
             var id = 555;

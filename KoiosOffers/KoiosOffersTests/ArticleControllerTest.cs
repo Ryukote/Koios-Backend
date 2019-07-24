@@ -70,47 +70,6 @@ namespace KoiosOffersTests
         }
 
         [Fact]
-        public async Task WillGetAllArticles()
-        {
-            var databaseName = Guid.NewGuid().ToString();
-
-            var handler = new ArticleHandler(SetupContext(databaseName));
-
-            ArticleController controller = new ArticleController(handler);
-
-            ArticleViewModel viewModel = new ArticleViewModel()
-            {
-                Name = "TestArticle",
-                UnitPrice = 700
-            };
-
-            ArticleViewModel viewModel2 = new ArticleViewModel()
-            {
-                Name = "TestArticle2",
-                UnitPrice = 770
-            };
-
-            var result = await controller.Post(viewModel);
-            var result2 = await controller.Post(viewModel2);
-            var allItems = await controller.GetAll();
-
-            var statusCode = ((ObjectResult)result).StatusCode;
-            var statusCode2 = ((ObjectResult)result2).StatusCode;
-            var statusCodeGetAll = ((ObjectResult)allItems).StatusCode;
-
-            var json = ((ObjectResult)allItems).Value;
-
-            Assert.NotNull(result);
-            Assert.NotNull(result2);
-            Assert.True(result is ObjectResult);
-            Assert.True(result2 is ObjectResult);
-            Assert.True(allItems is ObjectResult);
-            Assert.Equal(StatusCodes.Status201Created, statusCode);
-            Assert.Equal(StatusCodes.Status201Created, statusCode2);
-            Assert.Equal(StatusCodes.Status200OK, statusCodeGetAll);
-        }
-
-        [Fact]
         public async Task WillGetArticleByFilter()
         {
             var databaseName = Guid.NewGuid().ToString();

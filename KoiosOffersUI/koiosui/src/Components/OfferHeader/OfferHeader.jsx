@@ -97,7 +97,9 @@ export default class OfferHeader extends React.Component {
                 selectedArticePrice: e.target.value
             })
         } else {
-            alert("Enter valid price for article");
+            this.setState({
+                selectedArticePrice: ''
+            })
         }
     }
 
@@ -180,8 +182,6 @@ export default class OfferHeader extends React.Component {
     }
 
     toggleAddArticleToOffer() {
-        // this.getArticleById();
-
         this.setState({
             modalForAddToOfferIsOpen: ! this.state.modalForAddToOfferIsOpen
         })

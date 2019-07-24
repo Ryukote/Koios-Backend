@@ -7,24 +7,21 @@ namespace KoiosOffers.Contracts
     public interface IOfferController
     {
         [HttpGet]
-        Task<IActionResult> GetAll();
-
-        [HttpGet]
         Task<IActionResult> GetById([FromQuery]int id);
 
         [HttpGet]
-        Task<IActionResult> GetPaginatedAsync([FromQuery]int offerNumber, [FromQuery]int skip, [FromQuery]int take);
-
-        [HttpGet]
-        Task<IActionResult> GetOfferByOfferNumberAsync(int offerNumber);
+        Task<IActionResult> GetOfferArticlesByIdAsync([FromQuery]int offerId);
 
         [HttpPost]
         Task<IActionResult> Post([FromBody]OfferViewModel offerViewModel);
 
-        [HttpPut]
-        Task<IActionResult> Put([FromBody]OfferViewModel offerViewModel);
+        [HttpPost]
+        Task<IActionResult> PostOfferArticle([FromBody]OfferArticleViewModel offerArticleViewModel);
 
         [HttpDelete]
         Task<IActionResult> Delete([FromQuery]int id);
+
+        [HttpDelete]
+        Task<IActionResult> DeleteOfferArticle([FromQuery]int offerId, [FromQuery]int articleId);
     }
 }

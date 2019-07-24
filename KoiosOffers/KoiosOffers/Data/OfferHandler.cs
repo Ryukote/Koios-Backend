@@ -116,30 +116,12 @@ namespace KoiosOffers.Data
             return await _dbContext.SaveChangesAsync();
         }
 
-        public async Task<IEnumerable<OfferViewModel>> GetAllAsync()
-        {
-            var query = await _dbContext.Offer.ToListAsync();
-
-            var converted = ModelConverter.ToOfferViewModelEnumerable(query);
-
-            return converted;
-        }
-
         public async Task<OfferViewModel> GetByIdAsync(int id)
         {
             var offer = await _dbContext.Offer
                 .Include(x => x.OfferArticles)
                     .ThenInclude(x => x.Article)
                 .FirstOrDefaultAsync(x => x.Id.Equals(id));
-
-
-            return ModelConverter.ToOfferViewModel(offer);
-        }
-
-        public async Task<OfferViewModel> GetOfferByOfferNumberAsync(int offerNumber)
-        {
-            var offer = await _dbContext.Offer
-                .FirstOrDefaultAsync(x => x.Number.Equals(offerNumber));
 
 
             return ModelConverter.ToOfferViewModel(offer);
@@ -164,25 +146,6 @@ namespace KoiosOffers.Data
             }
 
             return ModelConverter.ToArticleViewModelEnumerable(articles.AsEnumerable());
-        }
-
-        public async Task<IEnumerable<OfferViewModel>> GetPaginatedAsync(int offerNumber, int take = default, int skip = default)
-        {
-            var query = await _dbContext.Offer
-                .Where(x => x.Number.ToString().Contains(offerNumber.ToString()))
-                .Skip(skip)
-                .Take(take)
-                .ToListAsync();
-
-            var converted = ModelConverter.ToOfferViewModelEnumerable(query);
-
-            return converted;
-        }
-
-        public async Task<int> UpdateAsync(OfferViewModel model)
-        {
-            _dbContext.Offer.Update(ModelConverter.ToOffer(model));
-            return await _dbContext.SaveChangesAsync();
         }
     }
 }

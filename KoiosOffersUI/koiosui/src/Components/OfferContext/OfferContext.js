@@ -58,6 +58,7 @@ export class OfferProvider extends React.Component {
                 return index;
             }
         }
+
         return -1;
     }
 
@@ -71,6 +72,7 @@ export class OfferProvider extends React.Component {
                 if(!tmpArticles[exists].hasOwnProperty("amount")) {
                     tmpArticles[exists].amount = 0;
                 }
+
                 tmpArticles[exists].amount += 1;
             } 
         }
@@ -108,9 +110,11 @@ export class OfferProvider extends React.Component {
             });
         }).catch(error => {
             alert("Offer with given id doesn't exist.");
+
             this.setState({
                 articleCollection: []
             })
+            
             throw error;
         })
 

@@ -22,43 +22,12 @@ namespace KoiosOffers.Controllers
         }
 
         [HttpGet]
-        public async Task<IActionResult> GetAll()
-        {
-            var result = await _article.GetAllAsync();
-
-            if (result.Count().Equals(0))
-            {
-                return NoContent();
-            }
-
-            else if (result == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(result);
-        }
-
-        [HttpGet]
         [ActionName("GetById")]
         public async Task<IActionResult> GetById([FromQuery]int id)
         {
             var result = await _article.GetByIdAsync(id);
 
             if (result == null)
-            {
-                return BadRequest();
-            }
-
-            return Ok(result);
-        }
-
-        [HttpGet]
-        public async Task<IActionResult> GetIdByName([FromQuery]string name)
-        {
-            var result = await _article.GetIdByNameAsync(name);
-
-            if (result < 1)
             {
                 return BadRequest();
             }
