@@ -34,7 +34,6 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
-            //bilo je samo Ok(result)
             return Ok(JsonConvert.SerializeObject(result));
         }
 
@@ -44,7 +43,8 @@ namespace KoiosOffers.Controllers
         {
             if(offerId > 0)
             {
-                IEnumerable<ArticleViewModel> list = await _offer.GetOfferArticlesByIdAsync(offerId);
+                IEnumerable<ArticleViewModel> list = await _offer
+                    .GetOfferArticlesByIdAsync(offerId);
 
                 if(list.Count().Equals(0))
                 {

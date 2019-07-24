@@ -57,7 +57,6 @@ namespace KoiosOffers
             }
 
             app.UseCors("CorsPolicy");
-            //app.UseHttpsRedirection();
             app.UseMvc();
         }
 

@@ -20,7 +20,9 @@ namespace KoiosOffers.Data
 
         public async Task<int> AddAsync(OfferViewModel viewModel)
         {
-            var existingOffer = _dbContext.Offer.Where(x => x.Number.Equals(viewModel.Number)).FirstOrDefault();
+            var existingOffer = _dbContext.Offer
+                .Where(x => x.Number.Equals(viewModel.Number))
+                .FirstOrDefault();
 
             if (existingOffer != null)
             {
@@ -28,11 +30,13 @@ namespace KoiosOffers.Data
             }
 
             var converted = ModelConverter.ToOffer(viewModel);
+
             _dbContext.Offer.Add(converted);
 
             var articleIds = viewModel.Articles.Select(x => x.Id);
 
-            var existingArticles = _dbContext.Article.Where(x => articleIds.Contains(x.Id));
+            var existingArticles = _dbContext.Article
+                .Where(x => articleIds.Contains(x.Id));
 
             decimal totalPrice = 0;
 
@@ -40,7 +44,8 @@ namespace KoiosOffers.Data
             {
                 foreach (var item in viewModel.Articles)
                 {
-                    var article = existingArticles.FirstOrDefault(x => x.Id.Equals(item.Id));
+                    var article = existingArticles
+                        .FirstOrDefault(x => x.Id.Equals(item.Id));
 
                     if (article == null)
                     {
@@ -60,6 +65,7 @@ namespace KoiosOffers.Data
 
             converted.TotalPrice = totalPrice;
             _dbContext.Offer.Add(converted);
+
             await _dbContext.SaveChangesAsync();
             return converted.Id;
         }
@@ -68,7 +74,11 @@ namespace KoiosOffers.Data
         {
             try
             {
-                _dbContext.OfferArticle.Add(new OfferArticle() { OfferId = offerId, ArticleId = articleId });
+                _dbContext.OfferArticle.Add(new OfferArticle() {
+                    OfferId = offerId,
+                    ArticleId = articleId
+                });
+
                 await _dbContext.SaveChangesAsync();
                 return 1;
             }
@@ -89,7 +99,8 @@ namespace KoiosOffers.Data
 
             else
             {
-                throw new ArgumentException("Provided id is not valid.", nameof(id));
+                throw new ArgumentException("Provided id is not valid.",
+                    nameof(id));
             }
 
             return await _dbContext.SaveChangesAsync();
@@ -97,8 +108,10 @@ namespace KoiosOffers.Data
 
         public async Task<int> DeleteOfferArticle(int offerId, int articleId)
         {
-            var result = await _dbContext.OfferArticle.Where(x => x.OfferId.Equals(offerId)
-                && x.ArticleId.Equals(articleId)).ToListAsync();
+            var result = await _dbContext.OfferArticle
+                .Where(x => x.OfferId.Equals(offerId)
+                    && x.ArticleId.Equals(articleId))
+                .ToListAsync();
 
             if (result != null)
             {
@@ -120,9 +133,8 @@ namespace KoiosOffers.Data
         {
             var offer = await _dbContext.Offer
                 .Include(x => x.OfferArticles)
-                    .ThenInclude(x => x.Article)
+                .ThenInclude(x => x.Article)
                 .FirstOrDefaultAsync(x => x.Id.Equals(id));
-
 
             return ModelConverter.ToOfferViewModel(offer);
         }
@@ -132,7 +144,8 @@ namespace KoiosOffers.Data
             List<Article> articles = new List<Article>();
 
             var offers = await _dbContext.OfferArticle
-                .Where(x => x.OfferId.Equals(offerId)).ToListAsync();
+                .Where(x => x.OfferId.Equals(offerId))
+                .ToListAsync();
 
             foreach(var item in offers)
             {

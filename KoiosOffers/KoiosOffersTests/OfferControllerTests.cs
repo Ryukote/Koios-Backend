@@ -147,7 +147,7 @@ namespace KoiosOffersTests
 
             var jsonById = ((ObjectResult)findById).Value;
 
-            var convertedJson = JsonConvert.DeserializeObject<object>(jsonById.ToString());
+            var convertedObject = JsonConvert.DeserializeObject<object>(jsonById.ToString());
 
             Assert.NotNull(result);
             Assert.NotNull(findById);
@@ -155,7 +155,7 @@ namespace KoiosOffersTests
             Assert.True(findById is ObjectResult);
             Assert.Equal(StatusCodes.Status201Created, statusCode);
             Assert.Equal(StatusCodes.Status200OK, statusCode2);
-            Assert.NotNull(convertedJson);
+            Assert.NotNull(convertedObject);
         }
     }
 }
