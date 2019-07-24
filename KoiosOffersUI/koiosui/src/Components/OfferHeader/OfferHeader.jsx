@@ -82,15 +82,23 @@ export default class OfferHeader extends React.Component {
     }
 
     onAmountChange = (e) => {
-        this.setState({
-            amount: e.target.value
-        })
+        if(!Number.isInteger(e.target.value) && e.target.value < 1) {
+            alert("You need to enter valid integer that is not less than 1");
+        } else {
+            this.setState({
+                amount: e.target.value
+            })
+        }
     }
 
     onUpdateArticlePriceChange = (e) => {
-        this.setState({
-            selectedArticePrice: e.target.value
-        })
+        if (!Number.isNaN(e.target.value) && e.target.value > 0.01) {
+            this.setState({
+                selectedArticePrice: e.target.value
+            })
+        } else {
+            alert("Enter valid price for article");
+        }
     }
 
     getArticleById = async () => {
@@ -208,15 +216,9 @@ export default class OfferHeader extends React.Component {
         }).then(() => {
             alert("Article updated");
             this.toggleUpdateArticle();
-            // this.setState({
-            //     toggleUpdateArticle: false
-            // })
         }).catch(error => {
             alert("Something went wrong");
             this.toggleUpdateArticle();
-            // this.setState({
-            //     toggleUpdateArticle: false
-            // })
             throw error;
         });
     }
@@ -224,17 +226,21 @@ export default class OfferHeader extends React.Component {
     addNewArticle = async () => {
         let url = "http://localhost:59189/api/Article/Add";
 
-        await axios.post(url, {
-            "Name": newArticleName,
-            "UnitPrice": newArticlePrice
-        }).then(() => {
-            alert("Article successfully added");
-        }).catch(error => {
-            alert("Something went wrong");
-            throw error;
-        });
+        if(!Number.isNaN(newArticlePrice) && newArticlePrice > 0.01) {
+            await axios.post(url, {
+                "Name": newArticleName,
+                "UnitPrice": newArticlePrice
+            }).then(() => {
+                alert("Article successfully added");
+            }).catch(error => {
+                alert("Something went wrong");
+                throw error;
+            });
 
-        this.toggleNewArticle();
+            this.toggleNewArticle();
+        } else {
+            alert("Enter valid article price");
+        }
     }
 
     deleteArticle = async (data) => {
@@ -343,7 +349,7 @@ export default class OfferHeader extends React.Component {
                                                 </ModalBody>
                                                 <ModalFooter>
                                                     <Button color="primary" onClick={async () => {
-                                                        if(this.state.offerId !== null) {
+                                                        if(this.state.offerId !== null && this.state.amount > 0) {
                                                             await this.getArticleById()
                                                                 .then(async(result) => {
                                                                     await value.addToCollection(result, this.state.offerId, this.state.amount);
@@ -352,8 +358,12 @@ export default class OfferHeader extends React.Component {
                                                                 });
                                                         }
 
-                                                        else {
+                                                        else if(this.state.offerId === null){
                                                             alert("You haven't selected any offer");
+                                                        }
+
+                                                        else {
+                                                            alert("You need to enter valid integer that is not less than 1");
                                                         }
                                                     }}>
                                                         Add
