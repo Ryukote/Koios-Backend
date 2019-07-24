@@ -148,8 +148,8 @@ export default class OfferHeader extends React.Component {
 
                     for(let [key] in Object.entries(result)) {
                         dropdownResult.push({
-                            label: result[key].Name,
-                            value: result[key].Id
+                            label: result[key].name,
+                            value: result[key].id
                         })
                     }
 
