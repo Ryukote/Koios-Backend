@@ -421,21 +421,44 @@ export default class OfferHeader extends React.Component {
                                     </div>
                                 </div>
 
-                                <div id="articleList">
-                                    {
-                                        value.articleCollection 
-                                            ? Object(value.articleCollection).map((article, key) => {
-                                                if(article !== null) {
-                                                    return(
-                                                        value.renderArticle(article, key)
-                                                    )
-                                                }
+                                <div className="centerTable">
+                                    <table align="center">
+                                        <thead>
+                                            <tr>
+                                                <th>
+                                                    Article id
+                                                </th>
+                                                <th className="thSpace">
+                                                    Article name
+                                                </th>
+                                                <th className="thSpace">
+                                                    Article price
+                                                </th>
+                                                <th className="thSpace">
+                                                    Amount
+                                                </th>
+                                                <th>
 
-                                                return <div></div>
-                                            })
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            {
+                                                value.articleCollection 
+                                                ? Object(value.articleCollection).map((article, key) => {
+                                                    if(article !== null) {
+                                                        return(
+                                                            value.renderArticleAsRow(article, key)
+                                                        )
+                                                    }
 
-                                            : <div></div>
-                                    }
+                                                    return <div></div>
+                                                })
+
+                                                : <div></div>
+                                            }
+                                        </tbody>
+                                    </table>
                                 </div>
 
                                 <div id="totalPrice" className="totalPriceStyle">

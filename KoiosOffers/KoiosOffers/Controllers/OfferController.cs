@@ -34,7 +34,7 @@ namespace KoiosOffers.Controllers
                 return BadRequest();
             }
 
-            return Ok(JsonConvert.SerializeObject(result));
+            return Ok(result);
         }
 
         [HttpGet]

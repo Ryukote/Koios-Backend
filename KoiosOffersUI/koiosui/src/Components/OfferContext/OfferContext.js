@@ -9,7 +9,6 @@ export const OfferContext = createContext({
   articleCollection: [],
   addToCollection: () => [],
   removeFromCollection: () => [],
-  renderArticle(value, key) {},
   returnCollection: () => {},
   createOffer: () => {},
   getData: () => {},
@@ -25,7 +24,7 @@ export class OfferProvider extends React.Component {
             getOffer: this.getOffer.bind(this),
             addToCollection: this.addToCollection.bind(this),
             returnCollection: this.returnCollection.bind(this),
-            renderArticle: this.renderArticle.bind(this),
+            renderArticleAsRow: this.renderArticleAsRow.bind(this),
             createOffer: this.createOffer.bind(this),
             getData: this.getData.bind(this),
             suggestions: [],
@@ -45,7 +44,7 @@ export class OfferProvider extends React.Component {
         this.addToCollection = this.addToCollection.bind(this);
         this.removeFromCollection = this.removeFromCollection.bind(this);
         this.returnCollection = this.returnCollection.bind(this);
-        this.renderArticle = this.renderArticle.bind(this);
+        this.renderArticleAsRow = this.renderArticleAsRow.bind(this);
         this.createOffer = this.createOffer.bind(this);
         this.getData = this.getData.bind(this);
         this.appendArticleToOffer = this.appendArticleToOffer.bind(this);
@@ -229,35 +228,35 @@ export class OfferProvider extends React.Component {
         return this.state.articleCollection;
     }
 
-    renderArticle = (value, key) => {
+    renderArticleAsRow = (value, key) => {
         if(value != null && value.amount !== undefined){
             return(
-                <div className="articlePosition" key={key}>
-                    <div>
-                        {"Article id: " + value.id}
-                    </div>
-    
-                    <div>
-                        {"Article name: " + value.name}
-                    </div>
-    
-                    <div>
-                        {"Article price: " + value.unitPrice}
-                    </div>
+                <tr key={key} className="articleAsRow">
+                    <td>
+                        {value.id}
+                    </td>
 
-                    <div>
-                        {"Amount: " + value.amount}
-                    </div>
-    
-                    <div>
+                    <td>
+                        {value.name}
+                    </td>
+
+                    <td>
+                        {value.unitPrice}
+                    </td>
+
+                    <td>
+                        {value.amount}
+                    </td>
+
+                    <td>
                         <Button
                             color="danger"
                             onClick={async () => await this.removeFromCollection({...value})}
                         >
                             Remove from offer
                         </Button>
-                    </div>
-                </div>
+                    </td>
+                </tr>
             );
         }
         else{

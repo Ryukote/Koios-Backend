@@ -4,6 +4,17 @@
     background-color: #3d4ddb;
 }
 
+.centerTable {
+    padding-top: 20px;
+    padding-bottom: 20px;
+    margin: 0 auto;
+}
+
+.thSpace {
+    padding-left: 20px;
+    padding-right: 20px;
+}
+
 #headerTop {
     width: inherit;
     text-align: center;
