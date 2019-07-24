@@ -3,6 +3,7 @@ import { Button } from 'reactstrap';
 import axios from 'axios';
 import lodash from 'lodash';
 import './OfferContext.css';
+import Decimal from 'decimal.js';
 
 export const OfferContext = createContext({
   articleCollection: [],
@@ -114,7 +115,7 @@ export class OfferProvider extends React.Component {
             this.setState({
                 articleCollection: []
             })
-            
+
             throw error;
         })
 
@@ -140,7 +141,8 @@ export class OfferProvider extends React.Component {
                 let tmpValue = response.data[index];
                 if(!tmpArray.includes(tmpValue.id)) {
                     tmpArray.push(tmpValue.id);
-                    tmpSum += tmpValue.unitPrice * (tmpValue.amount !== undefined ? tmpValue.amount : 1);
+                    let value1 = new Decimal(tmpValue.unitPrice);
+                    tmpSum +=  parseFloat(value1.mul(tmpValue.amount !== undefined ? tmpValue.amount : 1));
                 }
             }
 
@@ -157,27 +159,29 @@ export class OfferProvider extends React.Component {
     }    
     
     addToCollection = async(article, offerId, amount) => {
-        let tmpArray;
+        if(article !== undefined) {
+            let tmpArray;
 
-        this.state.articleCollection !== [] && this.state.articleCollection.length > 0
-            ? tmpArray = this.state.articleCollection
-            : tmpArray = []
+            this.state.articleCollection !== [] && this.state.articleCollection.length > 0
+                ? tmpArray = this.state.articleCollection
+                : tmpArray = []
 
-        tmpArray.push(article);
+            tmpArray.push(article);
 
-        this.setState({
-            articleCollection: tmpArray
-        })
+            this.setState({
+                articleCollection: tmpArray
+            })
 
-        for(let i = 0; i < amount; i++) {
-            await this.addOfferArticle(offerId, article.id);
+            for(let i = 0; i < amount; i++) {
+                await this.addOfferArticle(offerId, article.id);
+            }
+            
+            let calculatedTotalPrice = this.state.totalPrice + article.totalPrice;
+
+            this.setState({
+                totalPrice: calculatedTotalPrice
+            });
         }
-        
-        let calculatedTotalPrice = this.state.totalPrice + article.totalPrice;
-
-        this.setState({
-            totalPrice: calculatedTotalPrice
-        });
     }
 
     addOfferArticle = async (offerId, articleId) => {

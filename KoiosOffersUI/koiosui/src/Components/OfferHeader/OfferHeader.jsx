@@ -104,7 +104,8 @@ export default class OfferHeader extends React.Component {
     }
 
     getArticleById = async () => {
-        if(this.state.articleIdToOperate !== null) {
+        if(this.state.articleIdToOperate !== null 
+                && this.state.articleIdToOperate !== undefined) {
             let url = "https://localhost:44315/api/Article/GetById?id="
             + this.state.articleIdToOperate;
 
@@ -126,7 +127,9 @@ export default class OfferHeader extends React.Component {
                 }
 
                 return articles;
-            }).catch(() => alert("You didn't select an article"));
+            }).catch(() => {
+                alert("You didn't select an article");
+            });
         }
     }
 
